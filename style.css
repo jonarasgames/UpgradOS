@@ -3,13 +3,14 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  user-select: none;
 }
 
-/* Tela de Boot */
+/* Boot screen */
 #bootScreen {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  inset: 0;
   background: #111;
   color: #0f0;
   display: flex;
@@ -17,7 +18,6 @@
   justify-content: center;
   align-items: center;
   font-size: 2em;
-  user-select: none;
   z-index: 9999;
 }
 
@@ -38,116 +38,281 @@
 }
 
 @keyframes loadProgress {
-  to { width: 100%; }
+  to {
+    width: 100%;
+  }
 }
 
 /* Desktop */
 #desktop {
-  padding: 15px;
+  position: relative;
   height: 100vh;
-  background: #f0f0f0;
+  overflow: hidden;
+}
+
+/* Papel de parede */
+#wallpaper {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://wallpapercave.com/wp/wp2708044.jpg');
   background-size: cover;
   background-position: center;
+  transition: background-image 0.5s ease;
+  z-index: 0;
 }
 
-.hidden {
-  display: none !important;
-}
-
+/* Barra de tarefas */
 #taskbar {
-  background: #0078d7;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: rgba(0, 120, 215, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  z-index: 10000;
   color: white;
-  padding: 10px;
-  font-weight: bold;
+  font-weight: 600;
   user-select: none;
-  margin-bottom: 20px;
-  border-radius: 5px;
 }
 
-/* Ícones */
-#icons {
+/* Botão iniciar */
+#startButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-right: 10px;
+  padding: 5px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+#startButton:hover {
+  background: rgba(255 255 255 / 0.2);
+}
+
+/* Área para ícones das janelas abertas */
+#taskbarIcons {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+#taskbarIcons::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ícone do relógio e pontos */
+#taskbarRight {
   display: flex;
   gap: 15px;
-  margin-bottom: 20px;
+  align-items: center;
+  font-size: 0.9em;
 }
 
-.icon {
-  background: #fff;
-  border: 1px solid #ccc;
-  padding: 12px 20px;
+/* Pontos */
+#pointsLabel {
+  user-select: text;
+}
+
+/* Relógio */
+#clock {
+  user-select: text;
+  font-weight: 400;
+}
+
+/* Menu iniciar */
+#startMenu {
+  position: fixed;
+  bottom: 40px;
+  left: 10px;
+  width: 250px;
+  background: rgba(255 255 255 / 0.95);
+  box-shadow: 0 0 15px rgba(0,0,0,0.25);
   border-radius: 8px;
-  font-size: 1.2em;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  padding: 10px;
+  z-index: 10001;
+  transition: opacity 0.3s ease;
   user-select: none;
 }
 
-.icon:hover {
+.startMenuSection h3 {
+  margin-bottom: 10px;
+  font-weight: 700;
+  font-size: 1.1em;
+  color: #222;
+}
+
+.appIcon {
+  display: inline-flex;
+  font-size: 1.8em;
+  width: 45px;
+  height: 45px;
+  justify-content: center;
+  align-items: center;
+  margin: 5px;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  color: #444;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.appIcon:hover {
   background-color: #0078d7;
   color: white;
 }
 
-/* Janelas */
-.window {
-  position: fixed;
-  top: 100px;
+.appIcon::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -26px;
   left: 50%;
   transform: translateX(-50%);
-  width: 320px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.3);
-  z-index: 1000;
+  background: rgba(0,0,0,0.75);
+  color: white;
+  font-size: 0.8em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
   user-select: none;
 }
 
+.appIcon:hover::after {
+  opacity: 1;
+}
+
+/* Janela */
+.window {
+  position: absolute;
+  background: rgba(255 255 255 / 0.9);
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  width: 350px;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  user-select: text;
+  backdrop-filter: blur(10px);
+  transition: box-shadow 0.2s ease;
+  z-index: 10;
+}
+
+.window.blur {
+  backdrop-filter: blur(20px);
+}
+
+.window:focus,
+.window:hover {
+  box-shadow: 0 0 25px rgba(0,120,215,0.8);
+  z-index: 1000 !important;
+}
+
+/* Barra de título */
 .window-header {
   background: #0078d7;
   color: white;
-  padding: 10px;
-  font-weight: bold;
+  padding: 8px 10px;
+  font-weight: 600;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
+  cursor: grab;
+  user-select: none;
 }
 
+.window-header.dragging {
+  cursor: grabbing;
+}
+
+/* Botões da janela */
 .window-header button {
   background: transparent;
   border: none;
   color: white;
   font-size: 1.1em;
   cursor: pointer;
+  margin-left: 8px;
+  padding: 0 4px;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
 }
 
+.window-header button:hover {
+  background: rgba(255 255 255 / 0.3);
+}
+
+/* Corpo da janela */
 .window-body {
   padding: 15px;
-  font-size: 1em;
-  color: #333;
+  flex: 1;
+  overflow: auto;
+  color: #222;
 }
 
-.window-body textarea {
+/* Notepad textarea */
+textarea {
   width: 100%;
+  height: 100%;
   resize: none;
-  font-family: monospace;
+  font-family: Consolas, monospace;
   font-size: 1em;
-  padding: 8px;
-  border-radius: 5px;
   border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
   box-sizing: border-box;
+}
+
+/* Botões de upgrade dentro da loja */
+.upgrade {
+  margin: 6px 0;
+  padding: 10px 15px;
+  width: 100%;
+  border: none;
+  background: #0078d7;
+  color: white;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  user-select: none;
+}
+
+.upgrade:hover:not(.disabled) {
+  background: #005a9e;
+}
+
+.upgrade.disabled {
+  background: #999;
+  cursor: default;
+  pointer-events: none;
 }
 
 /* Notificações */
 #notifications {
   position: fixed;
-  bottom: 15px;
+  bottom: 60px;
   right: 15px;
+  max-width: 320px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-width: 300px;
   z-index: 1100;
+  user-select: none;
 }
 
 .notification {
@@ -157,6 +322,7 @@
   border-radius: 8px;
   box-shadow: 0 0 8px rgba(0,0,0,0.2);
   animation: fadeInOut 4s forwards;
+  font-weight: 600;
 }
 
 @keyframes fadeInOut {
@@ -173,16 +339,11 @@
   background: gold;
   color: black;
   padding: 12px 20px;
-  font-weight: bold;
+  font-weight: 700;
   border-radius: 10px;
   box-shadow: 0 0 12px gold;
   z-index: 1100;
   user-select: none;
-}
-
-/* Blur upgrade */
-.blur {
-  backdrop-filter: blur(8px);
 }
 
 /* Cursor customizado upgrade */
