@@ -16,27 +16,32 @@ const achievementPopup = document.getElementById("achievement");
 const clickSound = document.getElementById("clickSound");
 const errorSound = document.getElementById("errorSound");
 const notifySound = document.getElementById("notifySound");
+const bootSound = document.getElementById("bootSound");
 
-// ⏳ BOOT SCREEN
-window.onload = () => {
+// ✅ BOOT SCREEN com DOMContentLoaded seguro
+window.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
     document.getElementById("bootScreen").classList.add("hidden");
     document.getElementById("desktop").classList.remove("hidden");
     updateUI();
     playSound("boot");
-  }, 3100); // tempo da animação
-};
+  }, 3100); // duração da barra de loading
+});
 
 function playSound(type) {
-  if (type === "click") clickSound.play();
-  if (type === "error") errorSound.play();
-  if (type === "notify") notifySound.play();
+  try {
+    if (type === "click") clickSound.play();
+    if (type === "error") errorSound.play();
+    if (type === "notify") notifySound.play();
+    if (type === "boot") bootSound.play();
+  } catch (e) {
+    console.warn("Erro ao tocar som:", type);
+  }
 }
 
 function updateUI() {
   pointsDisplay.textContent = points;
 
-  // Aplicar upgrades
   if (upgrades.includes("wallpaper")) {
     document.getElementById("desktop").style.backgroundImage =
       "url('https://wallpapercave.com/wp/wp2708044.jpg')";
