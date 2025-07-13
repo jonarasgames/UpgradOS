@@ -4,6 +4,7 @@ let upgrades = JSON.parse(localStorage.getItem("upgrades")) || [];
 
 const pointsDisplay = document.getElementById("points");
 const startButton = document.getElementById("startButton");
+const taskbarApps = document.getElementById("taskbarApps");
 const taskbarIcons = document.getElementById("taskbarIcons");
 const startMenu = document.getElementById("startMenu");
 const windowsContainer = document.getElementById("windowsContainer");
@@ -28,7 +29,10 @@ window.addEventListener("click", () => {
 // Tela boot
 window.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
-    document.getElementById("bootScreen").classList.add("hidden");
+    const boot = document.getElementById("bootScreen");
+    if (boot) {
+      boot.style.display = "none"; // Agora oculta mesmo
+    }
     document.getElementById("desktop").classList.remove("hidden");
     updateUI();
     updateClock();
@@ -78,7 +82,13 @@ function updateUI() {
   updateUpgradesButtons();
 
   if (upgrades.length >= 3) {
-    achievementPopup.classList.remove("hidden");
+    if (!achievementPopup) {
+      const ach = document.createElement("div");
+      ach.id = "achievement";
+      ach.textContent = "Conquista desbloqueada!";
+      document.body.appendChild(ach);
+      setTimeout(() => ach.remove(), 4000);
+    }
   }
 }
 
@@ -140,7 +150,15 @@ const appsData = {
 
 let zIndexCounter = 100;
 
-// Atualiza ícones das janelas na taskbar
+// Abre o app ao clicar no ícone fixo da taskbar
+taskbarApps.querySelectorAll(".appIcon").forEach(btn => {
+  btn.onclick = () => {
+    openApp(btn.dataset.app);
+    playSound("click");
+  };
+});
+
+// Atualiza ícones das janelas abertas na taskbar
 function updateTaskbar() {
   taskbarIcons.innerHTML = "";
   const windows = [...windowsContainer.children];
@@ -299,8 +317,6 @@ function focusWindow(win) {
   zIndexCounter++;
   win.style.zIndex = zIndexCounter;
   win.style.display = "flex";
-  // Também abrir o app no taskbar se estiver minimizado
-  if (win.style.display === "none") win.style.display = "flex";
 }
 
 // Função para permitir arrastar janelas
@@ -360,20 +376,17 @@ function saveGame() {
   localStorage.setItem("upgrades", JSON.stringify(upgrades));
 }
 
-// Inicializar UI
 function init() {
   updateUI();
 
-  // Ações dos apps do menu iniciar
-  document.querySelectorAll(".appIcon").forEach(el => {
-    el.onclick = () => {
-      openApp(el.dataset.app);
-      startMenu.classList.add("hidden");
-      playSound("click");
-    };
-  });
-
   updateClock();
+
+  // Fecha menu iniciar se clicar fora
+  document.addEventListener("click", e => {
+    if (!startMenu.contains(e.target) && e.target !== startButton) {
+      startMenu.classList.add("hidden");
+    }
+  });
 }
 
 init();
