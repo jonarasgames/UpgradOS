@@ -5,7 +5,6 @@ let upgrades = JSON.parse(localStorage.getItem("upgrades")) || [];
 const pointsDisplay = document.getElementById("points");
 const startButton = document.getElementById("startButton");
 const taskbarApps = document.getElementById("taskbarApps");
-const taskbarRight = document.getElementById("taskbarRight");
 const windowsContainer = document.getElementById("windowsContainer");
 const wallpaper = document.getElementById("wallpaper");
 const notifications = document.getElementById("notifications");
@@ -17,8 +16,7 @@ const bootSound = document.getElementById("bootSound");
 
 let firstInteraction = false;
 
-// Simula lista de músicas disponíveis
-// No GitHub Pages você não pode listar diretórios, entao listamos manualmente aqui
+// Lista simulada de músicas (não dá pra listar pasta no GitHub Pages)
 const musicFiles = [
   "sounds/music/song1.mp3",
   "sounds/music/song2.mp3",
@@ -30,6 +28,7 @@ const musicNames = [
   "Song 3 - Groove"
 ];
 
+// Garante que sons só toquem após interação do usuário
 window.addEventListener("click", () => {
   if (!firstInteraction) {
     firstInteraction = true;
@@ -37,20 +36,18 @@ window.addEventListener("click", () => {
   }
 });
 
-// Tela boot
+// Tela boot some após 3.1s
 window.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
     const boot = document.getElementById("bootScreen");
-    if (boot) {
-      boot.style.display = "none";
-    }
+    if (boot) boot.style.display = "none";
     document.getElementById("desktop").classList.remove("hidden");
     updateUI();
     updateClock();
   }, 3100);
 });
 
-// Função para tocar sons
+// Toca sons com controle de interação
 function playSound(type) {
   if (!firstInteraction && type !== "boot") return;
   try {
@@ -63,18 +60,18 @@ function playSound(type) {
   }
 }
 
-// Atualiza UI geral, upgrades e wallpaper
+// Atualiza interface visual e upgrades
 function updateUI() {
   pointsDisplay.textContent = points;
 
-  // Papel de parede
+  // Papel de parede upgrade
   if (upgrades.includes("wallpaper")) {
     wallpaper.style.backgroundImage = "url('https://wallpapercave.com/wp/wp2708044.jpg')";
   } else {
     wallpaper.style.backgroundImage = "none";
   }
 
-  // Blur upgrade nas janelas
+  // Blur upgrade aplica a todas janelas abertas
   const windows = document.querySelectorAll(".window");
   if (upgrades.includes("blur")) {
     windows.forEach(w => w.classList.add("blur"));
@@ -82,27 +79,27 @@ function updateUI() {
     windows.forEach(w => w.classList.remove("blur"));
   }
 
-  // Cursor customizado
+  // Cursor customizado upgrade
   if (upgrades.includes("cursor")) {
     document.body.classList.add("custom-cursor");
   } else {
     document.body.classList.remove("custom-cursor");
   }
 
-  // Atualiza ícones da barra destacando os abertos
+  // Atualiza ícones da barra destacando os apps abertos
   updateTaskbarIcons();
 
-  // Atualiza botões upgrade da loja
+  // Atualiza botões de upgrade na loja
   updateUpgradesButtons();
 
-  // Atualiza player caso aberto para refletir upgrades
+  // Atualiza player música caso aberto
   const winPlayer = document.querySelector(".window[data-app='winamp']");
   if (winPlayer) {
     updateMusicPlayerUI(winPlayer);
   }
 }
 
-// Atualiza o relógio na barra
+// Atualiza relógio na barra
 function updateClock() {
   const clock = document.getElementById("clock");
   setInterval(() => {
@@ -111,13 +108,13 @@ function updateClock() {
   }, 1000);
 }
 
-// Salvar progresso
+// Salva progresso local
 function saveGame() {
   localStorage.setItem("points", points);
   localStorage.setItem("upgrades", JSON.stringify(upgrades));
 }
 
-// Abre ou fecha o menu iniciar
+// Abrir/fechar menu iniciar
 startButton.addEventListener("click", e => {
   e.stopPropagation();
   toggleStartMenu();
@@ -128,7 +125,7 @@ function toggleStartMenu() {
   startMenu.classList.toggle("hidden");
 }
 
-// Fecha o menu se clicar fora
+// Fecha menu se clicar fora
 document.addEventListener("click", e => {
   const startMenu = document.getElementById("startMenu");
   if (!startMenu.contains(e.target) && e.target !== startButton) {
@@ -161,7 +158,7 @@ const appsData = {
   winamp: {
     title: "Winamp",
     icon: "🎵",
-    content: `<div class="music-player">
+    content: `<div class="music-player" role="region" aria-label="Player de Música">
       <div class="music-list" role="list" aria-label="Lista de músicas"></div>
       <div class="music-controls">
         <button id="prevBtn" title="Anterior" disabled>⏮</button>
@@ -175,7 +172,7 @@ const appsData = {
 
 let zIndexCounter = 100;
 
-// Abre app ao clicar no ícone fixo da taskbar
+// Atrela os botões fixos da barra para abrir app
 taskbarApps.querySelectorAll(".appIcon").forEach(btn => {
   btn.onclick = () => {
     openApp(btn.dataset.app);
@@ -183,14 +180,14 @@ taskbarApps.querySelectorAll(".appIcon").forEach(btn => {
   };
 });
 
-// Controla janela aberta por app (só uma por appKey)
+// Guarda janelas abertas para foco e controle
 const openWindows = {};
 
-// Abre janela do app, foca e destaca botão da barra
+// Abre janela do app
 function openApp(appKey) {
   if (!appsData[appKey]) return;
 
-  // Se já aberto, foca
+  // Se já aberto, foca e ativa ícone na barra
   if (openWindows[appKey]) {
     focusWindow(openWindows[appKey]);
     setActiveAppIcon(appKey);
@@ -205,20 +202,20 @@ function openApp(appKey) {
   win.style.left = "100px";
   win.style.zIndex = ++zIndexCounter;
 
-  // Header
+  // Header da janela
   const header = document.createElement("div");
   header.className = "window-header";
   header.innerHTML = `
     <span>${appsData[appKey].title}</span>
     <div>
-      <button class="minimizeBtn" title="Minimizar">━</button>
-      <button class="maximizeBtn" title="Maximizar">⬜</button>
-      <button class="closeBtn" title="Fechar">✖</button>
+      <button class="minimizeBtn" title="Minimizar" aria-label="Minimizar">━</button>
+      <button class="maximizeBtn" title="Maximizar" aria-label="Maximizar">⬜</button>
+      <button class="closeBtn" title="Fechar" aria-label="Fechar">✖</button>
     </div>
   `;
   win.appendChild(header);
 
-  // Body
+  // Corpo da janela
   const body = document.createElement("div");
   body.className = "window-body";
   body.innerHTML = appsData[appKey].content;
@@ -230,7 +227,7 @@ function openApp(appKey) {
   updateTaskbarIcons();
   updateUI();
 
-  // Botões janela
+  // Botões da janela
   header.querySelector(".closeBtn").onclick = () => {
     win.remove();
     delete openWindows[appKey];
@@ -267,7 +264,7 @@ function openApp(appKey) {
   // Arrastar janela
   makeDraggable(win, header);
 
-  // Aplicações específicas
+  // Funcionalidades específicas apps
   if (appKey === "earn") {
     body.querySelector("#earnPointsBtn").onclick = () => {
       points++;
@@ -312,7 +309,7 @@ function openApp(appKey) {
   setActiveAppIcon(appKey);
 }
 
-// Atualiza estado ativo dos ícones da barra (destaca)
+// Destaca ícone ativo na barra
 function updateTaskbarIcons() {
   const icons = taskbarApps.querySelectorAll(".appIcon");
   icons.forEach(icon => {
@@ -324,7 +321,7 @@ function updateTaskbarIcons() {
   });
 }
 
-// Destaca ícone da barra e tira dos outros
+// Define o ícone ativo na barra
 function setActiveAppIcon(appKey) {
   const icons = taskbarApps.querySelectorAll(".appIcon");
   icons.forEach(icon => {
@@ -336,7 +333,7 @@ function setActiveAppIcon(appKey) {
   });
 }
 
-// Atualiza botões upgrade (desabilita comprados)
+// Atualiza os botões de upgrade (desabilita comprados)
 function updateUpgradesButtons() {
   const upgradeButtons = document.querySelectorAll(".upgrade");
   upgradeButtons.forEach(btn => {
@@ -350,7 +347,7 @@ function updateUpgradesButtons() {
   });
 }
 
-// Arrastar janelas
+// Faz janelas arrastáveis
 function makeDraggable(win, header) {
   let isDragging = false;
   let offsetX, offsetY;
@@ -389,7 +386,13 @@ function makeDraggable(win, header) {
   });
 }
 
-// Notificações
+// Trazer janela para frente
+function focusWindow(win) {
+  zIndexCounter++;
+  win.style.zIndex = zIndexCounter;
+}
+
+// Notificações visuais
 function notify(text) {
   const box = document.createElement("div");
   box.className = "notification";
@@ -502,7 +505,6 @@ function updateMusicPlayerUI(body) {
   const prevBtn = body.querySelector("#prevBtn");
   const nextBtn = body.querySelector("#nextBtn");
   const currentTrackLabel = body.querySelector("#currentTrack");
-  const musicListDiv = body.querySelector(".music-list");
 
   currentTrackLabel.textContent = musicNames[currentTrackIndex] || "Nenhuma música";
 
