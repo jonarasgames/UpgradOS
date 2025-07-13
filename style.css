@@ -1,110 +1,212 @@
-/* Reset básico */
-* {
+:root {
+  --taskbar-color: #222;
+  --taskbar-height: 40px;
+  --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  /* Backgrounds por nível */
+  --level-bg-1: rgba(240, 240, 240, 0.9);
+  --level-bg-2: rgba(230, 230, 255, 0.8);
+  --level-bg-3: rgba(220, 235, 255, 0.7);
+  --level-bg-4: rgba(210, 245, 255, 0.6);
+  --level-bg-5: rgba(200, 255, 255, 0.5);
+
+  --aero-blur: blur(12px);
+  --default-bg: linear-gradient(to bottom, #ddd, #bbb);
+
+  --cursor-default: auto;
+  --cursor-upgrade1: url('icons/cursor1.cur'), auto;
+  --cursor-upgrade2: url('icons/cursor2.cur'), auto;
+  --cursor-upgrade3: url('icons/cursor3.cur'), auto;
+  --cursor-upgrade4: url('icons/cursor4.cur'), auto;
+  --cursor-upgrade5: url('icons/cursor5.cur'), auto;
+}
+
+body {
   margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body, html {
-  height: 100%;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #111;
-  color: white;
-  cursor: default;
-  user-select: none;
+  font-family: var(--font);
+  background: #000;
   overflow: hidden;
+  cursor: var(--cursor-default);
+  transition: background 0.5s;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Tela de boot */
 #bootScreen {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  inset: 0;
   background: #000;
+  color: #0f0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 12000;
+  font-size: 20px;
+  z-index: 9999;
 }
-#bootScreen h1 {
-  font-size: 2rem;
-  margin-bottom: 15px;
-}
+
 #bootBar {
-  width: 300px;
-  height: 10px;
-  background: #222;
-  border-radius: 5px;
-  overflow: hidden;
+  width: 200px;
+  height: 8px;
+  border: 1px solid #0f0;
+  margin-top: 10px;
 }
 #bootBar .progress {
   height: 100%;
-  width: 0;
-  background: #0f9;
-  animation: none;
+  width: 0%;
+  background: #0f0;
+  animation: bootload 3s forwards;
 }
 @keyframes bootload {
-  0% { width: 0%; }
-  100% { width: 100%; }
+  to {
+    width: 100%;
+  }
 }
 
-#startGameBtn {
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  background: #0f0;
-  color: #000;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-#startGameBtn:hover {
-  background: #0c0;
-}
-
-/* Desktop */
 #desktop {
+  flex-grow: 1;
   position: relative;
-  height: 100%;
-  width: 100%;
+  background: var(--default-bg);
+  transition: background 0.5s;
   overflow: hidden;
 }
+
+#windowsContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: var(--taskbar-height);
+  overflow: visible;
+}
+
 #wallpaper {
   position: absolute;
   inset: 0;
   background-size: cover;
   background-position: center;
-  filter: none;
-  z-index: 0;
+  z-index: -1;
+  transition: background-image 0.5s ease;
+}
+
+/* Barra de tarefas */
+#taskbar {
+  height: var(--taskbar-height);
+  background: var(--taskbar-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  justify-content: space-between;
+  user-select: none;
+  transition: background-color 0.5s ease;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+/* Barra transparente - nível de upgrade */
+.taskbar-transparent-1 { background-color: rgba(34, 34, 34, 0.85); }
+.taskbar-transparent-2 { background-color: rgba(34, 34, 34, 0.7); }
+.taskbar-transparent-3 { background-color: rgba(34, 34, 34, 0.55); }
+.taskbar-transparent-4 { background-color: rgba(34, 34, 34, 0.4); }
+.taskbar-transparent-5 { background-color: rgba(34, 34, 34, 0.25); }
+
+#startButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+#taskbarApps {
+  display: flex;
+  gap: 10px;
+}
+.appIcon {
+  font-size: 20px;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s ease;
+  user-select: none;
+}
+.appIcon:hover {
+  transform: scale(1.2);
+}
+
+/* Indicador ativo no ícone */
+.appIcon.active::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: lime;
+  border-radius: 50%;
+}
+
+/* direita da barra */
+#taskbarRight {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  font-size: 14px;
+}
+
+/* Menu iniciar */
+#startMenu {
+  position: absolute;
+  bottom: var(--taskbar-height);
+  left: 10px;
+  background: white;
+  width: 200px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 8px rgba(0,0,0,0.3);
+  user-select: none;
+  z-index: 1001;
 }
 
 /* Janelas */
 .window {
   position: absolute;
-  background: rgba(255,255,255,0.95);
-  border-radius: 6px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.7);
   width: 350px;
-  height: 300px;
+  height: 250px;
+  background: var(--level-bg-1);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
-  user-select: text;
-  z-index: 100;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  user-select: none;
 }
 .window.blur {
-  backdrop-filter: blur(10px);
-  background: rgba(255,255,255,0.5);
-  border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: var(--aero-blur);
 }
 
-/* Header da janela */
+/* Janela efeito Aero Blur e níveis wallpaper */
+.window[data-upgrade-wallpaper-level='1'] { background: var(--level-bg-1); }
+.window[data-upgrade-wallpaper-level='2'] { background: var(--level-bg-2); }
+.window[data-upgrade-wallpaper-level='3'] { background: var(--level-bg-3); }
+.window[data-upgrade-wallpaper-level='4'] { background: var(--level-bg-4); }
+.window[data-upgrade-wallpaper-level='5'] {
+  background: var(--level-bg-5);
+  backdrop-filter: var(--aero-blur);
+}
+
 .window-header {
-  background: #0078d7;
+  background: #111;
   color: white;
-  padding: 5px 10px;
+  padding: 6px 12px;
   cursor: move;
+  font-weight: 600;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -114,100 +216,37 @@ body, html {
   background: transparent;
   border: none;
   color: white;
-  font-weight: bold;
   font-size: 16px;
   cursor: pointer;
   padding: 0 6px;
 }
+
 .window-body {
-  padding: 10px;
   flex-grow: 1;
-  overflow-y: auto;
   background: white;
-  color: black;
-}
-
-/* Barra de tarefas */
-#taskbar {
-  position: fixed;
-  bottom: 0;
-  left: 0; right: 0;
-  height: 40px;
-  background: rgba(20,20,20,0.95);
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-  box-shadow: 0 -1px 5px rgba(0,0,0,0.5);
-  z-index: 11000;
-  user-select: none;
-}
-#startButton {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  margin-right: 10px;
-  color: white;
-}
-#taskbarApps {
-  display: flex;
-  gap: 10px;
-  flex-grow: 1;
-}
-.appIcon {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-  position: relative;
-}
-.appIcon:hover::after {
-  content: attr(title);
-  position: absolute;
-  bottom: 120%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: black;
-  padding: 3px 6px;
-  font-size: 11px;
-  border-radius: 3px;
-  white-space: nowrap;
-  pointer-events: none;
-  user-select: none;
-  opacity: 0.8;
-}
-
-/* Área direita da taskbar */
-#taskbarRight {
-  display: flex;
-  gap: 15px;
+  padding: 10px;
+  overflow-y: auto;
   font-size: 14px;
-  align-items: center;
+  color: #222;
 }
 
 /* Notificações */
-#notifications {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  width: 250px;
-  z-index: 13000;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .notification {
-  background: #222;
-  color: #0f0;
-  padding: 10px;
-  border-radius: 4px;
-  font-size: 13px;
+  position: fixed;
+  top: 50px;
+  right: 20px;
+  background: #333;
+  color: white;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 6px;
   opacity: 0.9;
+  font-size: 14px;
+  z-index: 2000;
   user-select: none;
 }
 
-/* Música - lista e controles */
+/* Player música */
 .music-player {
   display: flex;
   flex-direction: column;
@@ -217,40 +256,43 @@ body, html {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 .music-controls button {
+  background: #0078d7;
+  border: none;
+  color: white;
   font-size: 18px;
+  padding: 6px 12px;
   cursor: pointer;
+  border-radius: 4px;
+  user-select: none;
+}
+.music-controls button:disabled {
+  background: #aaa;
+  cursor: default;
 }
 .music-list {
   overflow-y: auto;
   flex-grow: 1;
 }
 .music-list button {
-  display: block;
   width: 100%;
-  text-align: left;
-  background: #eee;
   border: none;
-  padding: 5px 10px;
-  margin-bottom: 4px;
+  background: transparent;
+  text-align: left;
+  padding: 6px;
   cursor: pointer;
-  border-radius: 3px;
   user-select: none;
 }
-.music-list button:hover {
-  background: #cceeff;
-}
 .music-list button.active {
-  background: #3399ff;
+  background: #0078d7;
   color: white;
-  font-weight: bold;
 }
 
-/* Cursor upgrades */
-body.cursor-level-1 { cursor: auto; }
-body.cursor-level-2 { cursor: auto; }
-body.cursor-level-3 { cursor: auto; }
-body.cursor-level-4 { cursor: auto; }
-body.cursor-level-5 { cursor: auto; }
+/* Cursors customizados (se quiser usar) */
+body.cursor-level-1 { cursor: var(--cursor-upgrade1); }
+body.cursor-level-2 { cursor: var(--cursor-upgrade2); }
+body.cursor-level-3 { cursor: var(--cursor-upgrade3); }
+body.cursor-level-4 { cursor: var(--cursor-upgrade4); }
+body.cursor-level-5 { cursor: var(--cursor-upgrade5); }
