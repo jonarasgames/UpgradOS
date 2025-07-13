@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>UpgradOS - Estilo Windows 10</title>
+<title>UpgradOS - Fruitger Aero</title>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -25,31 +25,31 @@
 
   <!-- Barra de tarefas -->
   <div id="taskbar">
-    <button id="startButton" title="Iniciar">
+    <button id="startButton" title="Iniciar" aria-label="Iniciar">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><rect x="3" y="4" width="7" height="7" /><rect x="3" y="13" width="7" height="7" /><rect x="14" y="4" width="7" height="7" /><rect x="14" y="13" width="7" height="7" /></svg>
     </button>
 
-    <div id="taskbarApps">
+    <div id="taskbarApps" role="list" aria-label="Aplicativos fixos na barra">
       <!-- Ícones fixos dos apps -->
-      <button class="appIcon" data-app="earn" title="Ganhar Pontos">💾</button>
-      <button class="appIcon" data-app="store" title="Loja">🛒</button>
-      <button class="appIcon" data-app="notepad" title="Notepad">📝</button>
-      <button class="appIcon" data-app="winamp" title="Winamp">🎵</button>
+      <button class="appIcon" data-app="earn" title="Ganhar Pontos" role="listitem">💾</button>
+      <button class="appIcon" data-app="store" title="Loja" role="listitem">🛒</button>
+      <button class="appIcon" data-app="notepad" title="Notepad" role="listitem">📝</button>
+      <button class="appIcon" data-app="winamp" title="Winamp" role="listitem">🎵</button>
     </div>
 
-    <div id="taskbarIcons"></div>
-
     <div id="taskbarRight">
-      <span id="pointsLabel">Pontos: <span id="points">0</span></span>
-      <span id="clock"></span>
+      <span id="pointsLabel" aria-live="polite">Pontos: <span id="points">0</span></span>
+      <span id="clock" aria-live="polite"></span>
     </div>
   </div>
 
   <!-- Menu Iniciar -->
-  <div id="startMenu" class="hidden">
-    <!-- Pode adicionar opções extras aqui se quiser -->
+  <div id="startMenu" class="hidden" role="menu" aria-label="Menu Iniciar">
     <p style="padding: 10px; color: #444;">Menu Iniciar (em construção)</p>
   </div>
+
+  <!-- Notificações -->
+  <div id="notifications" aria-live="assertive" aria-atomic="true"></div>
 </div>
 
 <!-- Sons -->
