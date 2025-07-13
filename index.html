@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UpgradOS - Fruitger Aero</title>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -15,14 +15,14 @@
   </div>
 
   <!-- Desktop -->
-  <div id="desktop" class="hidden" role="main" aria-label="Área de trabalho">
+  <div id="desktop" class="hidden" tabindex="0">
     <div id="wallpaper"></div>
     <div id="windowsContainer"></div>
 
     <!-- Barra de tarefas -->
-    <div id="taskbar">
+    <div id="taskbar" role="banner">
       <button id="startButton" title="Iniciar" aria-label="Iniciar">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="white" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
           <rect x="3" y="4" width="7" height="7" />
           <rect x="3" y="13" width="7" height="7" />
           <rect x="14" y="4" width="7" height="7" />
@@ -31,15 +31,15 @@
       </button>
 
       <div id="taskbarApps" role="list" aria-label="Aplicativos fixos na barra">
-        <button class="appIcon" data-app="earn" title="Ganhar Pontos" role="listitem">💾</button>
-        <button class="appIcon" data-app="store" title="Loja" role="listitem">🛒</button>
-        <button class="appIcon" data-app="notepad" title="Notepad" role="listitem">📝</button>
-        <button class="appIcon" data-app="winamp" title="Winamp" role="listitem">🎵</button>
+        <button class="appIcon" data-app="earn" title="Ganhar Pontos" role="listitem" aria-haspopup="true">💾</button>
+        <button class="appIcon" data-app="store" title="Loja" role="listitem" aria-haspopup="true">🛒</button>
+        <button class="appIcon" data-app="notepad" title="Notepad" role="listitem" aria-haspopup="true">📝</button>
+        <button class="appIcon" data-app="winamp" title="Winamp" role="listitem" aria-haspopup="true">🎵</button>
       </div>
 
-      <div id="taskbarRight">
-        <span id="pointsLabel" aria-live="polite">Pontos: <span id="points">0</span></span>
-        <span id="clock" aria-live="polite"></span>
+      <div id="taskbarRight" aria-live="polite" aria-atomic="true">
+        <span id="pointsLabel">Pontos: <span id="points">0</span></span>
+        <span id="clock"></span>
       </div>
     </div>
 
@@ -48,15 +48,15 @@
       <p style="padding: 10px; color: #444;">Menu Iniciar (em construção)</p>
     </div>
 
-    <!-- Notificações -->
+    <!-- Notificacoes -->
     <div id="notifications" aria-live="assertive" aria-atomic="true"></div>
   </div>
 
   <!-- Sons -->
-  <audio id="clickSound" src="sounds/click.mp3" preload="auto"></audio>
-  <audio id="errorSound" src="sounds/error.mp3" preload="auto"></audio>
-  <audio id="notifySound" src="sounds/notify.mp3" preload="auto"></audio>
-  <audio id="bootSound" src="sounds/boot.mp3" preload="auto"></audio>
+  <audio id="clickSound" src="sounds/click.mp3"></audio>
+  <audio id="errorSound" src="sounds/error.mp3"></audio>
+  <audio id="notifySound" src="sounds/notify.mp3"></audio>
+  <audio id="bootSound" src="sounds/boot.mp3"></audio>
 
   <!-- Script -->
   <script src="script.js"></script>
