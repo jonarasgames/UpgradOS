@@ -13,8 +13,9 @@ const clockEl = document.getElementById('clock');
 const clickSound = document.getElementById('clickSound');
 const errorSound = document.getElementById('errorSound');
 const notifySound = document.getElementById('notifySound');
+// const systemSound = document.getElementById('systemSound'); // removido para evitar erro
+
 const bootSound = document.getElementById('bootSound');
-const systemSound = document.getElementById('systemSound');
 
 let points = 0;
 const maxLevel = 5;
@@ -57,7 +58,7 @@ function playSound(name) {
     if (name === 'click') clickSound.play();
     else if (name === 'error') errorSound.play();
     else if (name === 'notify') notifySound.play();
-    else if (name === 'system') systemSound.play();
+    // else if (name === 'system') systemSound.play(); // removido
   } catch {}
 }
 
@@ -109,6 +110,13 @@ function updateUI() {
 
   updateMusicPlayerUI();
   updatePointsButtons();
+}
+
+// Função para atualizar o player de música e evitar erro
+function updateMusicPlayerUI() {
+  const win = openWindows.get('winamp');
+  if (!win) return;
+  // Aqui pode atualizar UI do player se quiser, por enquanto vazio
 }
 
 // Atualiza o relógio (sem segundos)
