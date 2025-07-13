@@ -1,4 +1,4 @@
-/* Reset */
+/* Reset e fonte */
 * {
   margin: 0;
   padding: 0;
@@ -7,7 +7,7 @@
   user-select: none;
 }
 
-/* Boot screen */
+/* Boot screen - agora com z-index alto pra ficar em cima */
 #bootScreen {
   position: fixed;
   inset: 0;
@@ -18,9 +18,10 @@
   justify-content: center;
   align-items: center;
   font-size: 2em;
-  z-index: 9999;
+  z-index: 999999 !important;
 }
 
+/* Barra de progresso */
 #bootBar {
   width: 70%;
   height: 10px;
@@ -91,10 +92,61 @@
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s ease;
+  color: white;
 }
 
 #startButton:hover {
   background: rgba(255 255 255 / 0.2);
+}
+
+/* Container dos ícones fixos dos apps */
+#taskbarApps {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Ícones dos apps na barra */
+.appIcon {
+  background: transparent;
+  border: none;
+  font-size: 1.4em;
+  color: #ccc;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  position: relative;
+  user-select: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.appIcon:hover {
+  background-color: rgba(255 255 255 / 0.3);
+  color: white;
+}
+
+/* Tooltip com nome do app */
+.appIcon::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 45px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.75);
+  color: white;
+  font-size: 0.8em;
+  padding: 3px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  user-select: none;
+  z-index: 10001;
+}
+
+.appIcon:hover::after {
+  opacity: 1;
 }
 
 /* Área para ícones das janelas abertas */
@@ -105,6 +157,7 @@
   align-items: center;
   overflow-x: auto;
   scrollbar-width: none;
+  margin-left: 10px;
 }
 
 #taskbarIcons::-webkit-scrollbar {
@@ -143,55 +196,6 @@
   z-index: 10001;
   transition: opacity 0.3s ease;
   user-select: none;
-}
-
-.startMenuSection h3 {
-  margin-bottom: 10px;
-  font-weight: 700;
-  font-size: 1.1em;
-  color: #222;
-}
-
-.appIcon {
-  display: inline-flex;
-  font-size: 1.8em;
-  width: 45px;
-  height: 45px;
-  justify-content: center;
-  align-items: center;
-  margin: 5px;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  color: #444;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.appIcon:hover {
-  background-color: #0078d7;
-  color: white;
-}
-
-.appIcon::after {
-  content: attr(title);
-  position: absolute;
-  bottom: -26px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,0.75);
-  color: white;
-  font-size: 0.8em;
-  padding: 2px 6px;
-  border-radius: 3px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  user-select: none;
-}
-
-.appIcon:hover::after {
-  opacity: 1;
 }
 
 /* Janela */
