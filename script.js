@@ -16,17 +16,6 @@ const achievementPopup = document.getElementById("achievement");
 const clickSound = document.getElementById("clickSound");
 const errorSound = document.getElementById("errorSound");
 const notifySound = document.getElementById("notifySound");
-const bootSound = document.getElementById("bootSound");
-
-let firstInteraction = false;
-
-// Marca quando o usuário clicar pela primeira vez
-window.addEventListener("click", () => {
-  if (!firstInteraction) {
-    firstInteraction = true;
-    playSound("boot"); // toca o som de boot no primeiro clique
-  }
-});
 
 window.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
@@ -37,13 +26,10 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 function playSound(type) {
-  if (!firstInteraction && type !== "boot") return; // só permite som se tiver interação, exceto boot que toca após interação
-
   try {
     if (type === "click") clickSound.play();
     if (type === "error") errorSound.play();
     if (type === "notify") notifySound.play();
-    if (type === "boot") bootSound.play();
   } catch (e) {
     console.warn("Erro ao tocar som:", type);
   }
