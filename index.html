@@ -12,17 +12,16 @@
   <div id="bootScreen" role="alert" aria-live="assertive">
     <h1>Inicializando UpgradOS...</h1>
     <div id="bootBar"><div class="progress"></div></div>
-    <button id="startGameBtn">Clique para iniciar</button>
   </div>
 
   <!-- Desktop -->
   <div id="desktop" class="hidden" role="main" aria-label="Área de trabalho">
-    <div id="wallpaper"></div>
+    <div id="wallpaper" aria-hidden="true"></div>
     <div id="windowsContainer"></div>
 
     <!-- Barra de tarefas -->
     <div id="taskbar" role="navigation" aria-label="Barra de tarefas">
-      <button id="startButton" title="Iniciar" aria-label="Iniciar">
+      <button id="startButton" title="Iniciar" aria-label="Botão Iniciar">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="white" aria-hidden="true">
           <rect x="3" y="4" width="7" height="7" />
           <rect x="3" y="13" width="7" height="7" />
@@ -38,9 +37,9 @@
         <button class="appIcon" data-app="winamp" title="Winamp" role="listitem">🎵</button>
       </div>
 
-      <div id="taskbarRight" aria-live="polite" aria-atomic="true">
-        <span id="pointsLabel">Pontos: <span id="points">0</span></span>
-        <span id="clock"></span>
+      <div id="taskbarRight">
+        <span id="pointsLabel" aria-live="polite">Pontos: <span id="points">0</span></span>
+        <span id="clock" aria-live="polite"></span>
       </div>
     </div>
 
@@ -49,17 +48,18 @@
       <p style="padding: 10px; color: #444;">Menu Iniciar (em construção)</p>
     </div>
 
-    <!-- Notificações -->
+    <!-- Notificacoes -->
     <div id="notifications" aria-live="assertive" aria-atomic="true"></div>
   </div>
 
   <!-- Sons -->
-  <audio id="clickSound" src="sounds/click.mp3"></audio>
-  <audio id="errorSound" src="sounds/error.mp3"></audio>
-  <audio id="notifySound" src="sounds/notify.mp3"></audio>
-  <audio id="bootSound" src="sounds/boot.mp3"></audio>
+  <audio id="clickSound" src="sounds/click.mp3" preload="auto"></audio>
+  <audio id="errorSound" src="sounds/error.mp3" preload="auto"></audio>
+  <audio id="notifySound" src="sounds/notify.mp3" preload="auto"></audio>
+  <audio id="bootSound" src="sounds/boot.mp3" preload="auto"></audio>
+  <audio id="systemSound" src="sounds/system.mp3" preload="auto"></audio>
 
-  <!-- Script -->
-  <script src="script.js"></script>
+  <!-- Scripts -->
+  <script src="script.js" defer></script>
 </body>
 </html>
