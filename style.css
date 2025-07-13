@@ -1,0 +1,201 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #1e1e2f;
+  color: white;
+  overflow: hidden;
+}
+
+#desktop {
+  height: 100vh;
+  background-image: url('https://wallpapercave.com/wp/wp2757874.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+}
+
+#taskbar {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 10px;
+  font-weight: bold;
+}
+
+#icons {
+  display: flex;
+  gap: 15px;
+  padding: 20px;
+  flex-wrap: wrap;
+}
+
+.icon {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  padding: 10px 15px;
+  color: white;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  backdrop-filter: none;
+  transition: all 0.2s ease;
+}
+
+.icon:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.window {
+  background: rgba(30, 30, 30, 0.95);
+  border: 1px solid #888;
+  border-radius: 10px;
+  width: 300px;
+  margin: 20px;
+  padding: 0;
+  position: absolute;
+  top: 100px;
+  left: 50px;
+  z-index: 10;
+  overflow: hidden;
+  box-shadow: 0 0 10px #0005;
+}
+
+.window.blur {
+  backdrop-filter: blur(12px);
+}
+
+.window-header {
+  background: #222;
+  padding: 10px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #555;
+}
+
+.window-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+textarea {
+  width: 100%;
+  height: 100px;
+  resize: none;
+  background: #111;
+  color: #eee;
+  border: 1px solid #555;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+.upgrade {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 8px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.upgrade:hover {
+  background: #666;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Notificações */
+#notifications {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notification {
+  background: rgba(0,0,0,0.75);
+  padding: 10px 20px;
+  border-left: 5px solid #00aaff;
+  border-radius: 6px;
+  animation: fadeInOut 4s ease forwards;
+  font-size: 14px;
+  max-width: 300px;
+  backdrop-filter: blur(6px);
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(20px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(20px); }
+}
+
+/* Conquista */
+#achievement {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: gold;
+  color: black;
+  padding: 12px 20px;
+  font-weight: bold;
+  border-radius: 10px;
+  animation: popIn 1s ease forwards;
+  box-shadow: 0 0 10px #0005;
+  z-index: 100;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Boot Screen */
+#bootScreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  font-size: 22px;
+}
+
+#bootBar {
+  width: 60%;
+  height: 8px;
+  background: #444;
+  margin-top: 20px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+#bootBar .progress {
+  width: 0%;
+  height: 100%;
+  background: #00aaff;
+  animation: loadBar 3s forwards;
+}
+
+@keyframes loadBar {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+/* Cursor customizado */
+body.custom-cursor {
+  cursor: url('https://cur.cursors-4u.net/cursors/cur-11/cur1004.cur'), auto;
+}
