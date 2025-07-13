@@ -42,15 +42,23 @@ const musicNames = ['Track 1', 'Track 2', 'Track 3'];
 
 let firstInteraction = false; // para o autoplay do áudio
 
-// Boot sequence
-bootSound.play().catch(() => {});
-setTimeout(() => {
-  bootScreen.classList.add('hidden');
-  desktop.classList.remove('hidden');
-  bootSound.pause();
-  bootSound.currentTime = 0;
-  updateUI();
-}, 3000);
+// Função para iniciar boot após interação do usuário
+function startBootSequence() {
+  bootSound.play().catch(() => {});
+  setTimeout(() => {
+    bootScreen.classList.add('hidden');
+    desktop.classList.remove('hidden');
+    bootSound.pause();
+    bootSound.currentTime = 0;
+    updateUI();
+  }, 3000);
+}
+
+// Espera primeira interação do usuário para iniciar boot
+document.body.addEventListener('click', function handler() {
+  document.body.removeEventListener('click', handler);
+  startBootSequence();
+});
 
 // Som play helper
 function playSound(name) {
@@ -425,59 +433,43 @@ function openWinampApp() {
     };
 
     musicListDiv.innerHTML = '';
-    musicNames.forEach((name, i) => {
+    musicNames.forEach((name, index) => {
       const btn = document.createElement('button');
       btn.textContent = name;
       btn.setAttribute('role', 'listitem');
       btn.onclick = () => {
-        currentTrackIndex = i;
+        currentTrackIndex = index;
         updateCurrentTrack();
       };
       musicListDiv.appendChild(btn);
     });
 
     updateCurrentTrack();
-  }, 100);
+  }, 200);
 }
 
-// Atualiza botão ganhar pontos (com upgrade)
+// Botão Iniciar (só abre e fecha menu, que tá vazio)
+startButton.addEventListener('click', () => {
+  const startMenu = document.getElementById('startMenu');
+  startMenu.classList.toggle('hidden');
+  playSound('click');
+});
+
+// Atualiza os botões de compra de upgrade (desabilita se sem pontos)
 function updatePointsButtons() {
-  const earnWin = openWindows.get('earn');
-  if (!earnWin) return;
-  const btn = earnWin.querySelector('#earnBtn');
-  if (!btn) return;
-
-  const earnLevel = upgrades.earn || 0;
-  btn.textContent = `Ganhar ${earnLevel + 1} ponto${earnLevel + 1 > 1 ? 's' : ''}`;
-  btn.onclick = () => {
-    points += earnLevel + 1;
-    playSound('click');
-    notify(`Você ganhou ${earnLevel + 1} ponto${earnLevel + 1 > 1 ? 's' : ''}!`);
-    updateUI();
-  };
+  document.querySelectorAll('.buyBtn').forEach(btn => {
+    const price = Number(btn.getAttribute('data-price'));
+    btn.disabled = points < price;
+  });
 }
 
-// Capitaliza string
+// Função auxiliar para capitalizar texto
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Eventos do botão iniciar menu
-startButton.onclick = () => {
-  const startMenu = document.getElementById('startMenu');
-  startMenu.classList.toggle('hidden');
-  playSound('click');
-};
-
-// Fecha menu iniciar ao clicar fora
-document.addEventListener('click', (e) => {
-  const startMenu = document.getElementById('startMenu');
-  if (!startMenu.contains(e.target) && e.target !== startButton) {
-    startMenu.classList.add('hidden');
-  }
-});
-
-// Atualiza relógio inicial
+// Inicializa o relógio e a UI (sem o boot automático)
 updateClock();
-// Atualiza UI inicial
+
+// Atualiza UI inicial sem iniciar boot direto (aguarda interação)
 updateUI();
