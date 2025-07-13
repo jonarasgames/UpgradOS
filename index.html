@@ -20,7 +20,7 @@
   <!-- Papel de parede -->
   <div id="wallpaper"></div>
   
-  <!-- Janelas abertas vão aqui -->
+  <!-- Janelas abertas -->
   <div id="windowsContainer"></div>
 
   <!-- Barra de tarefas -->
@@ -28,6 +28,14 @@
     <button id="startButton" title="Iniciar">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><rect x="3" y="4" width="7" height="7" /><rect x="3" y="13" width="7" height="7" /><rect x="14" y="4" width="7" height="7" /><rect x="14" y="13" width="7" height="7" /></svg>
     </button>
+
+    <div id="taskbarApps">
+      <!-- Ícones fixos dos apps -->
+      <button class="appIcon" data-app="earn" title="Ganhar Pontos">💾</button>
+      <button class="appIcon" data-app="store" title="Loja">🛒</button>
+      <button class="appIcon" data-app="notepad" title="Notepad">📝</button>
+      <button class="appIcon" data-app="winamp" title="Winamp">🎵</button>
+    </div>
 
     <div id="taskbarIcons"></div>
 
@@ -39,13 +47,8 @@
 
   <!-- Menu Iniciar -->
   <div id="startMenu" class="hidden">
-    <div class="startMenuSection">
-      <h3>Aplicativos</h3>
-      <div class="appIcon" data-app="earn" title="Ganhar Pontos">💾</div>
-      <div class="appIcon" data-app="store" title="Loja">🛒</div>
-      <div class="appIcon" data-app="notepad" title="Notepad">📝</div>
-      <div class="appIcon" data-app="winamp" title="Winamp">🎵</div>
-    </div>
+    <!-- Pode adicionar opções extras aqui se quiser -->
+    <p style="padding: 10px; color: #444;">Menu Iniciar (em construção)</p>
   </div>
 </div>
 
