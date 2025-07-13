@@ -1,3 +1,4 @@
+// Variáveis principais
 let points = parseInt(localStorage.getItem("points")) || 0;
 let upgrades = JSON.parse(localStorage.getItem("upgrades")) || [];
 
@@ -16,7 +17,19 @@ const achievementPopup = document.getElementById("achievement");
 const clickSound = document.getElementById("clickSound");
 const errorSound = document.getElementById("errorSound");
 const notifySound = document.getElementById("notifySound");
+const bootSound = document.getElementById("bootSound");
 
+// Controle para tocar som só após clique do usuário
+let firstInteraction = false;
+
+window.addEventListener("click", () => {
+  if (!firstInteraction) {
+    firstInteraction = true;
+    playSound("boot");
+  }
+});
+
+// Tela de boot
 window.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
     document.getElementById("bootScreen").classList.add("hidden");
@@ -25,16 +38,21 @@ window.addEventListener("DOMContentLoaded", () => {
   }, 3100);
 });
 
+// Função para tocar sons
 function playSound(type) {
+  if (!firstInteraction && type !== "boot") return;
+
   try {
     if (type === "click") clickSound.play();
-    if (type === "error") errorSound.play();
-    if (type === "notify") notifySound.play();
+    else if (type === "error") errorSound.play();
+    else if (type === "notify") notifySound.play();
+    else if (type === "boot") bootSound.play();
   } catch (e) {
-    console.warn("Erro ao tocar som:", type);
+    console.warn("Erro ao tocar som:", type, e);
   }
 }
 
+// Atualiza UI com pontos e upgrades
 function updateUI() {
   pointsDisplay.textContent = points;
 
@@ -56,11 +74,13 @@ function updateUI() {
   }
 }
 
+// Salvar progresso no localStorage
 function saveGame() {
   localStorage.setItem("points", points);
   localStorage.setItem("upgrades", JSON.stringify(upgrades));
 }
 
+// Botão para ganhar pontos
 earnBtn.onclick = () => {
   points += 1;
   playSound("click");
@@ -68,6 +88,7 @@ earnBtn.onclick = () => {
   saveGame();
 };
 
+// Abrir janelas
 storeBtn.onclick = () => {
   storeWindow.classList.remove("hidden");
   playSound("click");
@@ -83,6 +104,7 @@ winampBtn.onclick = () => {
   playSound("click");
 };
 
+// Fechar janelas
 document.querySelectorAll(".closeBtn").forEach(btn => {
   btn.onclick = () => {
     btn.closest(".window").classList.add("hidden");
@@ -90,6 +112,7 @@ document.querySelectorAll(".closeBtn").forEach(btn => {
   };
 });
 
+// Comprar upgrades
 document.querySelectorAll(".upgrade").forEach(btn => {
   btn.onclick = () => {
     const cost = parseInt(btn.dataset.cost);
@@ -108,6 +131,7 @@ document.querySelectorAll(".upgrade").forEach(btn => {
   };
 });
 
+// Mostrar notificações
 function notify(text) {
   const box = document.createElement("div");
   box.className = "notification";
