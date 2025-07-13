@@ -1,7 +1,19 @@
 // Variáveis globais
+const bootScreen = document.getElementById('bootScreen');
+const desktop = document.getElementById('desktop');
+const wallpaper = document.getElementById('wallpaper');
+const windowsContainer = document.getElementById('windowsContainer');
+const taskbar = document.getElementById('taskbar');
+const taskbarApps = document.getElementById('taskbarApps');
+const pointsLabel = document.getElementById('points');
+const notifications = document.getElementById('notifications');
+const startButton = document.getElementById('startButton');
+const startMenu = document.getElementById('startMenu');
+const startGameBtn = document.getElementById('startGameBtn');
+
 let points = 0;
 const maxLevel = 5;
-const upgrades = {
+let upgrades = {
   wallpaper: 0,
   blur: 0,
   cursor: 0,
@@ -9,108 +21,92 @@ const upgrades = {
   taskbarTransparency: 0,
   systemSounds: 0,
   animations: 0,
+  earn: 0,
 };
+
+let openWindows = new Map();
+let zIndexCounter = 100;
+let firstInteraction = false;
 
 const musicFiles = [
   'sounds/music/song1.mp3',
   'sounds/music/song2.mp3',
-  'sounds/music/song3.mp3'
+  'sounds/music/song3.mp3',
 ];
 const musicNames = [
-  'Fruitger Song 1',
-  'Fruitger Song 2',
-  'Fruitger Song 3'
+  'Song 1',
+  'Song 2',
+  'Song 3',
 ];
 
-// Sons
-const clickSound = document.getElementById('clickSound');
-const errorSound = document.getElementById('errorSound');
-const notifySound = document.getElementById('notifySound');
-const bootSound = document.getElementById('bootSound');
-const systemSound = document.getElementById('systemSound');
+let currentTrackIndex = 0;
+let isPlaying = false;
+let audio = null;
 
-const pointsDisplay = document.getElementById('points');
-const wallpaper = document.getElementById('wallpaper');
-const windowsContainer = document.getElementById('windowsContainer');
-const taskbarApps = document.getElementById('taskbarApps');
-const startButton = document.getElementById('startButton');
-const notifications = document.getElementById('notifications');
-const taskbar = document.getElementById('taskbar');
+// Botão para iniciar boot, pois o Chrome bloqueia autoplay de áudio
+startGameBtn.onclick = () => {
+  startGameBtn.disabled = true;
+  boot();
+};
 
-let firstInteraction = false;
+// Boot screen (3 segundos) e inicia o sistema
+function boot() {
+  const progress = document.querySelector('#bootBar .progress');
+  progress.style.width = '0%';
 
-// Controle do boot
-window.addEventListener('click', () => {
-  if (!firstInteraction) {
-    firstInteraction = true;
-    playSound('boot');
-  }
-});
-
-// Tela boot some após 3.1s
-window.addEventListener('DOMContentLoaded', () => {
+  // Play som de boot após 0.5s
+  const bootSound = document.getElementById('bootSound');
   setTimeout(() => {
-    const boot = document.getElementById('bootScreen');
-    if (boot) boot.style.display = 'none';
-    document.getElementById('desktop').classList.remove('hidden');
-    updateUI();
-    updateClock();
-  }, 3100);
-});
+    bootSound.play().catch(() => {});
+  }, 500);
 
-// Função para tocar sons
-function playSound(type) {
-  if (!firstInteraction && type !== 'boot') return;
-  try {
-    if (type === 'click') clickSound.play();
-    else if (type === 'error') errorSound.play();
-    else if (type === 'notify') notifySound.play();
-    else if (type === 'boot') bootSound.play();
-    else if (type === 'system' && upgrades.systemSounds > 0) systemSound.play();
-  } catch (e) {
-    // Ignora erros de reprodução
-  }
+  // Anima barra de boot e esconde a tela após 3s
+  progress.style.animation = 'bootload 3s forwards';
+
+  setTimeout(() => {
+    bootScreen.classList.add('hidden');
+    desktop.classList.remove('hidden');
+    updateUI();
+  }, 3000);
 }
 
-// Atualiza a UI geral
+// Atualiza UI conforme upgrades e pontos
 function updateUI() {
-  pointsDisplay.textContent = points;
+  pointsLabel.textContent = points;
 
-  // Atualiza wallpaper conforme nível
-  const level = upgrades.wallpaper;
-  if (level === 0) {
-    wallpaper.style.backgroundImage = 'none';
-  } else if (level === 1) {
-    wallpaper.style.backgroundImage = "url('https://wallpapercave.com/wp/wp2708044.jpg')";
-  } else if (level === 2) {
-    wallpaper.style.backgroundImage = "url('https://wallpapercave.com/wp/wp2368959.jpg')";
-  } else if (level === 3) {
-    wallpaper.style.backgroundImage = "url('https://wallpapercave.com/wp/wp2579277.jpg')";
-  } else if (level === 4) {
-    wallpaper.style.backgroundImage = "url('https://wallpapercave.com/wp/wp1854874.jpg')";
-  } else if (level >= 5) {
+  // Atualiza wallpaper
+  if (upgrades.wallpaper === 0) {
+    wallpaper.style.backgroundImage = "url('https://wallpapercave.com/wp/wp2023696.jpg')";
+  } else if (upgrades.wallpaper === 1) {
+    wallpaper.style.backgroundImage = "url('https://wallpapercave.com/wp/wp2566920.jpg')";
+  } else if (upgrades.wallpaper === 2) {
+    wallpaper.style.backgroundImage = "url('https://wallpapercave.com/wp/wp2558854.jpg')";
+  } else if (upgrades.wallpaper === 3) {
+    wallpaper.style.backgroundImage = "url('https://wallpapercave.com/wp/wp2578814.jpg')";
+  } else if (upgrades.wallpaper >= 4) {
     wallpaper.style.backgroundImage = "url('https://wallpapercave.com/wp/wp2578814.jpg')";
   }
 
   // Atualiza janelas com nível wallpaper para efeito
-  const windows = document.querySelectorAll('.window');
-  windows.forEach(win => {
-    win.dataset.upgradeWallpaperLevel = level;
+  document.querySelectorAll('.window').forEach(win => {
+    win.dataset.upgradeWallpaperLevel = upgrades.wallpaper;
   });
 
   // Aplica blur aero nas janelas se upgrade ativo
   if (upgrades.blur > 0) {
-    windows.forEach(win => {
-      win.classList.add('blur');
-    });
+    document.querySelectorAll('.window').forEach(win => win.classList.add('blur'));
   } else {
-    windows.forEach(win => {
-      win.classList.remove('blur');
-    });
+    document.querySelectorAll('.window').forEach(win => win.classList.remove('blur'));
   }
 
   // Atualiza cursor conforme nível
-  document.body.classList.remove('cursor-level-1', 'cursor-level-2', 'cursor-level-3', 'cursor-level-4', 'cursor-level-5');
+  document.body.classList.remove(
+    'cursor-level-1',
+    'cursor-level-2',
+    'cursor-level-3',
+    'cursor-level-4',
+    'cursor-level-5'
+  );
   if (upgrades.cursor > 0) {
     document.body.classList.add(`cursor-level-${upgrades.cursor}`);
   }
@@ -127,7 +123,7 @@ function updateUI() {
     taskbar.classList.add(`taskbar-transparent-${upgrades.taskbarTransparency}`);
   }
 
-  // Atualiza animações
+  // Atualiza animações na taskbar
   if (upgrades.animations > 0) {
     taskbar.style.transition = 'background-color 0.3s ease, box-shadow 0.3s ease';
     taskbar.style.boxShadow = '0 0 10px #00d8ff';
@@ -139,21 +135,19 @@ function updateUI() {
   updatePointsButtons();
 }
 
-// Atualiza o relógio digital na taskbar
+// Atualiza relógio - só horas e minutos
 function updateClock() {
   const clock = document.getElementById('clock');
   const now = new Date();
   let h = now.getHours();
   let m = now.getMinutes();
-  let s = now.getSeconds();
   h = h < 10 ? '0' + h : h;
   m = m < 10 ? '0' + m : m;
-  s = s < 10 ? '0' + s : s;
-  clock.textContent = `${h}:${m}:${s}`;
+  clock.textContent = `${h}:${m}`;
   setTimeout(updateClock, 1000);
 }
 
-// Criar notificações visuais
+// Cria notificações na tela
 function notify(text) {
   const box = document.createElement('div');
   box.className = 'notification';
@@ -162,14 +156,14 @@ function notify(text) {
   setTimeout(() => box.remove(), 4000);
 }
 
-// Abertura e controle dos apps
-const openWindows = new Map();
-
+// Cria janela de app
 function createWindow(appName, title, contentHTML) {
+  // Se já aberto, foca janela
   if (openWindows.has(appName)) {
     focusWindow(openWindows.get(appName));
     return;
   }
+
   const win = document.createElement('div');
   win.className = 'window';
   win.dataset.app = appName;
@@ -178,6 +172,7 @@ function createWindow(appName, title, contentHTML) {
   win.style.top = '50px';
   win.tabIndex = 0;
 
+  // Cabeçalho com título e fechar
   const header = document.createElement('div');
   header.className = 'window-header';
   header.textContent = title;
@@ -193,6 +188,7 @@ function createWindow(appName, title, contentHTML) {
   header.appendChild(closeBtn);
   win.appendChild(header);
 
+  // Corpo da janela
   const body = document.createElement('div');
   body.className = 'window-body';
   body.innerHTML = contentHTML;
@@ -202,20 +198,20 @@ function createWindow(appName, title, contentHTML) {
   openWindows.set(appName, win);
   focusWindow(win);
 
-  // Drag and drop da janela
+  // Permitir arrastar pela barra do título
   dragElement(win, header);
 }
 
-// Focar janela para frente
-let zIndexCounter = 100;
+// Focar janela em primeiro plano
 function focusWindow(win) {
   zIndexCounter++;
   win.style.zIndex = zIndexCounter;
 }
 
-// Arrastar janela
+// Função para arrastar janela pelo header
 function dragElement(elmnt, dragHandle) {
   let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
   dragHandle.style.cursor = 'move';
 
   dragHandle.onmousedown = dragMouseDown;
@@ -223,20 +219,21 @@ function dragElement(elmnt, dragHandle) {
 
   function dragMouseDown(e) {
     e.preventDefault();
+    focusWindow(elmnt);
     pos3 = e.clientX;
     pos4 = e.clientY;
     document.onmouseup = closeDragElement;
     document.onmousemove = elementDrag;
-    focusWindow(elmnt);
   }
 
   function dragTouchStart(e) {
     e.preventDefault();
-    pos3 = e.touches[0].clientX;
-    pos4 = e.touches[0].clientY;
-    document.ontouchend = closeDragElement;
-    document.ontouchmove = elementTouchDrag;
     focusWindow(elmnt);
+    const touch = e.touches[0];
+    pos3 = touch.clientX;
+    pos4 = touch.clientY;
+    document.ontouchend = closeDragElement;
+    document.ontouchmove = elementDragTouch;
   }
 
   function elementDrag(e) {
@@ -245,267 +242,245 @@ function dragElement(elmnt, dragHandle) {
     pos2 = pos4 - e.clientY;
     pos3 = e.clientX;
     pos4 = e.clientY;
-    setPosition();
-  }
-
-  function elementTouchDrag(e) {
-    e.preventDefault();
-    pos1 = pos3 - e.touches[0].clientX;
-    pos2 = pos4 - e.touches[0].clientY;
-    pos3 = e.touches[0].clientX;
-    pos4 = e.touches[0].clientY;
-    setPosition();
-  }
-
-  function setPosition() {
     let newTop = elmnt.offsetTop - pos2;
     let newLeft = elmnt.offsetLeft - pos1;
 
-    // Limites da área de trabalho
-    const desktopRect = document.getElementById('desktop').getBoundingClientRect();
-    const winRect = elmnt.getBoundingClientRect();
+    // Impede que saia da tela (horizontal)
+    newLeft = Math.min(Math.max(0, newLeft), window.innerWidth - elmnt.offsetWidth);
+    newTop = Math.min(Math.max(0, newTop), window.innerHeight - elmnt.offsetHeight - taskbar.offsetHeight);
 
-    if (newLeft < 0) newLeft = 0;
-    if (newTop < 0) newTop = 0;
-    if (newLeft + winRect.width > desktopRect.right) newLeft = desktopRect.right - winRect.width;
-    if (newTop + winRect.height > desktopRect.bottom - 40) newTop = desktopRect.bottom - 40 - winRect.height;
+    elmnt.style.top = newTop + "px";
+    elmnt.style.left = newLeft + "px";
+  }
 
-    elmnt.style.left = newLeft + 'px';
-    elmnt.style.top = newTop + 'px';
+  function elementDragTouch(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    pos1 = pos3 - touch.clientX;
+    pos2 = pos4 - touch.clientY;
+    pos3 = touch.clientX;
+    pos4 = touch.clientY;
+    let newTop = elmnt.offsetTop - pos2;
+    let newLeft = elmnt.offsetLeft - pos1;
+
+    // Impede que saia da tela (horizontal)
+    newLeft = Math.min(Math.max(0, newLeft), window.innerWidth - elmnt.offsetWidth);
+    newTop = Math.min(Math.max(0, newTop), window.innerHeight - elmnt.offsetHeight - taskbar.offsetHeight);
+
+    elmnt.style.top = newTop + "px";
+    elmnt.style.left = newLeft + "px";
+  }
+
+  function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+    document.ontouchend = null;
+    document.ontouchmove = null;
   }
 }
 
-// Eventos dos ícones na barra e área de trabalho
-taskbarApps.querySelectorAll('.appIcon').forEach(btn => {
-  btn.addEventListener('click', () => {
-    playSound('click');
-    const app = btn.getAttribute('data-app');
-    openApp(app);
-    // Marca ativo na barra
-    taskbarApps.querySelectorAll('.appIcon').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  });
-});
-
-function openApp(appName) {
-  if (appName === 'earn') openEarnApp();
-  else if (appName === 'store') openStoreApp();
-  else if (appName === 'notepad') openNotepadApp();
-  else if (appName === 'winamp') openWinampApp();
-  else notify('Aplicativo não encontrado.');
-}
-
-// App Ganhar Pontos
+// Abrir app Ganhar Pontos
 function openEarnApp() {
+  const earnLevel = upgrades.earn || 0;
   const html = `
-    <p>Clique no botão para ganhar pontos:</p>
-    <button id="earnBtn">Ganhar 1 ponto</button>
+    <button id="earnBtn" style="font-size:18px; padding:10px; width: 100%;">Ganhar ${earnLevel + 1} ponto${earnLevel + 1 > 1 ? 's' : ''}</button>
   `;
   createWindow('earn', 'Ganhar Pontos', html);
 
-  // Botão ganhar pontos
+  // Botão ganhar pontos funciona com upgrades
   setTimeout(() => {
-    const earnBtn = document.querySelector('[data-app="earn"] .window-body #earnBtn') || document.querySelector('.window[data-app="earn"] #earnBtn');
+    const earnBtn = document.querySelector('.window[data-app="earn"] #earnBtn');
     if (!earnBtn) return;
     earnBtn.onclick = () => {
-      points++;
+      points += earnLevel + 1;
       playSound('click');
-      notify('Você ganhou 1 ponto!');
+      notify(`Você ganhou ${earnLevel + 1} ponto${earnLevel + 1 > 1 ? 's' : ''}!`);
       updateUI();
     };
   }, 100);
 }
 
-// App Loja
+// Abrir app Loja
 function openStoreApp() {
-  let html = '<p>Loja de Upgrades:</p><ul>';
-  const pricesBase = {
-    wallpaper: 10,
-    blur: 15,
-    cursor: 20,
-    player: 25,
-    taskbarTransparency: 15,
-    systemSounds: 15,
-    animations: 20,
-  };
-
-  Object.keys(upgrades).forEach(upg => {
-    const lvl = upgrades[upg];
-    if (lvl >= maxLevel) {
-      html += `<li>${capitalize(upg)} (nível máximo)</li>`;
-    } else {
-      const price = pricesBase[upg] * (lvl + 1);
-      html += `<li>${capitalize(upg)} - Nível ${lvl} <button class="buyBtn" data-upgrade="${upg}" data-price="${price}">Comprar por ${price} pontos</button></li>`;
-    }
+  let html = '<div><h3>Loja de Upgrades</h3><p>Pontos: <span id="storePoints">' + points + '</span></p><ul>';
+  const upgradesList = [
+    { key: 'wallpaper', label: 'Papel de Parede' },
+    { key: 'blur', label: 'Efeito Aero Blur' },
+    { key: 'cursor', label: 'Cursor Personalizado' },
+    { key: 'player', label: 'Player de Música' },
+    { key: 'taskbarTransparency', label: 'Transparência da Barra' },
+    { key: 'systemSounds', label: 'Sons do Sistema' },
+    { key: 'animations', label: 'Animações' },
+    { key: 'earn', label: 'Ganhar Pontos' }
+  ];
+  upgradesList.forEach(({ key, label }) => {
+    const level = upgrades[key] || 0;
+    const cost = (level + 1) * 10;
+    const disabled = level >= maxLevel || points < cost ? 'disabled' : '';
+    html += `<li>
+      ${label} (Nível ${level}/${maxLevel}) - Custo: ${cost} pontos
+      <button class="buyBtn" data-key="${key}" ${disabled}>Comprar</button>
+    </li>`;
   });
-  html += '</ul>';
-
+  html += '</ul></div>';
   createWindow('store', 'Loja', html);
 
-  // Botões comprar
+  // Botões comprar upgrade
   setTimeout(() => {
-    document.querySelectorAll('.buyBtn').forEach(btn => {
+    const storePoints = document.getElementById('storePoints');
+    const buyBtns = document.querySelectorAll('.buyBtn');
+    buyBtns.forEach(btn => {
       btn.onclick = () => {
-        const upg = btn.getAttribute('data-upgrade');
-        const price = Number(btn.getAttribute('data-price'));
-        if (points >= price) {
-          points -= price;
-          upgrades[upg]++;
-          playSound('notify');
-          notify(`Upgrade ${capitalize(upg)} comprado! Agora no nível ${upgrades[upg]}`);
+        const key = btn.dataset.key;
+        const level = upgrades[key] || 0;
+        const cost = (level + 1) * 10;
+        if (points >= cost && level < maxLevel) {
+          points -= cost;
+          upgrades[key] = level + 1;
+          playSound('click');
+          notify(`Upgrade ${capitalize(key)} para nível ${level + 1} comprado!`);
           updateUI();
-          openStoreApp(); // atualiza a loja
+          openStoreApp(); // Reabre loja para atualizar botões e pontos
         } else {
           playSound('error');
-          notify('Pontos insuficientes!');
+          notify('Pontos insuficientes ou nível máximo atingido.');
         }
+      };
+    });
+    if (storePoints) storePoints.textContent = points;
+  }, 200);
+}
+
+// Abrir app Notepad simples
+function openNotepadApp() {
+  const html = `
+    <textarea style="width:100%; height: 200px; resize:none;" aria-label="Bloco de notas"></textarea>
+  `;
+  createWindow('notepad', 'Notepad', html);
+}
+
+// Abrir app Winamp (player de música)
+function openWinampApp() {
+  if (audio) {
+    audio.pause();
+    audio = null;
+  }
+
+  let html = `
+    <div class="music-player" role="region" aria-label="Player de música">
+      <div class="music-controls">
+        <button id="prevBtn" aria-label="Música anterior">⏮️</button>
+        <button id="playPauseBtn" aria-label="Play/Pause">▶️</button>
+        <button id="nextBtn" aria-label="Próxima música">⏭️</button>
+      </div>
+      <div class="music-list" role="list" aria-label="Lista de músicas">
+  `;
+
+  musicNames.forEach((name, i) => {
+    html += `<button class="musicItem" data-index="${i}" role="listitem">${name}</button>`;
+  });
+  html += '</div></div>';
+
+  createWindow('winamp', 'Winamp', html);
+
+  setTimeout(() => {
+    const playPauseBtn = document.querySelector('.window[data-app="winamp"] #playPauseBtn');
+    const prevBtn = document.querySelector('.window[data-app="winamp"] #prevBtn');
+    const nextBtn = document.querySelector('.window[data-app="winamp"] #nextBtn');
+    const musicItems = document.querySelectorAll('.window[data-app="winamp"] .musicItem');
+
+    function updatePlayPauseIcon() {
+      playPauseBtn.textContent = isPlaying ? '⏸️' : '▶️';
+    }
+
+    function playTrack(index) {
+      if (audio) {
+        audio.pause();
+        audio = null;
+      }
+      currentTrackIndex = index;
+      audio = new Audio(musicFiles[index]);
+      audio.volume = 0.7;
+      audio.play().catch(() => {});
+      isPlaying = true;
+      updatePlayPauseIcon();
+      updateMusicListHighlight();
+      audio.onended = () => {
+        nextTrack();
+      };
+    }
+
+    function pauseTrack() {
+      if (audio) {
+        audio.pause();
+        isPlaying = false;
+        updatePlayPauseIcon();
+      }
+    }
+
+    function togglePlayPause() {
+      if (!audio) {
+        playTrack(currentTrackIndex);
+      } else if (isPlaying) {
+        pauseTrack();
+      } else {
+        audio.play().catch(() => {});
+        isPlaying = true;
+        updatePlayPauseIcon();
+      }
+    }
+
+    function nextTrack() {
+      let nextIndex = currentTrackIndex + 1;
+      if (nextIndex >= musicFiles.length) nextIndex = 0;
+      playTrack(nextIndex);
+    }
+
+    function prevTrack() {
+      let prevIndex = currentTrackIndex - 1;
+      if (prevIndex < 0) prevIndex = musicFiles.length - 1;
+      playTrack(prevIndex);
+    }
+
+    function updateMusicListHighlight() {
+      musicItems.forEach(item => {
+        item.classList.remove('active');
+      });
+      if (musicItems[currentTrackIndex]) {
+        musicItems[currentTrackIndex].classList.add('active');
+      }
+    }
+
+    playPauseBtn.onclick = togglePlayPause;
+    nextBtn.onclick = nextTrack;
+    prevBtn.onclick = prevTrack;
+
+    musicItems.forEach(item => {
+      item.onclick = () => {
+        const idx = Number(item.getAttribute('data-index'));
+        playTrack(idx);
       };
     });
   }, 100);
 }
 
-// App Notepad (simples)
-function openNotepadApp() {
-  const html = `
-    <p>Escreva algo aqui:</p>
-    <textarea style="width:100%; height: 150px;"></textarea>
-  `;
-  createWindow('notepad', 'Notepad', html);
-}
-
-// Player de música
-let currentTrackIndex = 0;
-let isPlaying = false;
-let audio = null;
-
-function openWinampApp() {
-  const html = `
-    <div class="music-player">
-      <div class="music-controls">
-        <button id="prevBtn" aria-label="Música anterior">⏮</button>
-        <button id="playPauseBtn" aria-label="Tocar/Pausar">▶️</button>
-        <button id="nextBtn" aria-label="Próxima música">⏭</button>
-      </div>
-      <div id="currentTrack" aria-live="polite" style="text-align:center; margin-bottom: 6px;">Nenhuma música</div>
-      <div class="music-list" role="list"></div>
-    </div>
-  `;
-  createWindow('winamp', 'Winamp', html);
-
-  setTimeout(setupMusicPlayer, 100);
-}
-
-function setupMusicPlayer() {
-  const win = openWindows.get('winamp');
-  if (!win) return;
-  const body = win.querySelector('.window-body');
-  const musicListDiv = body.querySelector('.music-list');
-  const playPauseBtn = body.querySelector('#playPauseBtn');
-  const prevBtn = body.querySelector('#prevBtn');
-  const nextBtn = body.querySelector('#nextBtn');
-  const currentTrackLabel = body.querySelector('#currentTrack');
-
-  musicListDiv.innerHTML = '';
-  musicFiles.forEach((file, idx) => {
-    const btn = document.createElement('button');
-    btn.textContent = musicNames[idx];
-    btn.setAttribute('role', 'listitem');
-    btn.onclick = () => {
-      currentTrackIndex = idx;
-      playTrack();
-    };
-    musicListDiv.appendChild(btn);
-  });
-
-  if (!audio) audio = new Audio();
-
-  function playTrack() {
-    if (upgrades.player === 0) {
-      notify('Compre o upgrade do player para usar!');
-      playSound('error');
-      return;
-    }
-    audio.src = musicFiles[currentTrackIndex];
-    audio.play().catch(() => {});
-    isPlaying = true;
-    updateMusicPlayerUI();
-    playPauseBtn.textContent = '⏸';
-    highlightActiveSong();
-  }
-
-  function pauseTrack() {
-    audio.pause();
-    isPlaying = false;
-    updateMusicPlayerUI();
-    playPauseBtn.textContent = '▶️';
-  }
-
-  function highlightActiveSong() {
-    const buttons = musicListDiv.querySelectorAll('button');
-    buttons.forEach((b, i) => {
-      if (i === currentTrackIndex) b.classList.add('active');
-      else b.classList.remove('active');
-    });
-  }
-
-  playPauseBtn.onclick = () => {
-    if (!firstInteraction) {
-      notify('Clique na tela para ativar o áudio.');
-      return;
-    }
-    if (isPlaying) pauseTrack();
-    else playTrack();
-  };
-
-  prevBtn.onclick = () => {
-    currentTrackIndex--;
-    if (currentTrackIndex < 0) currentTrackIndex = musicFiles.length - 1;
-    playTrack();
-  };
-
-  nextBtn.onclick = () => {
-    currentTrackIndex++;
-    if (currentTrackIndex >= musicFiles.length) currentTrackIndex = 0;
-    playTrack();
-  };
-
-  audio.onended = () => {
-    currentTrackIndex++;
-    if (currentTrackIndex >= musicFiles.length) currentTrackIndex = 0;
-    if (upgrades.player > 0) playTrack();
-  };
-
-  updateMusicPlayerUI();
-
-  function updateMusicPlayerUI() {
-    currentTrackLabel.textContent = musicNames[currentTrackIndex] || 'Nenhuma música';
-    playPauseBtn.disabled = upgrades.player === 0;
-    prevBtn.disabled = upgrades.player === 0;
-    nextBtn.disabled = upgrades.player === 0;
-  }
-}
-
-// Atualiza UI do player (para mudar botão play/stop e etc)
+// Atualiza UI do player (desabilita botões se upgrade zero)
 function updateMusicPlayerUI() {
   const win = openWindows.get('winamp');
   if (!win) return;
-  const body = win.querySelector('.window-body');
-  if (!body) return;
+  const playPauseBtn = win.querySelector('#playPauseBtn');
+  if (!playPauseBtn) return;
 
-  const playPauseBtn = body.querySelector('#playPauseBtn');
-  if (playPauseBtn) {
-    playPauseBtn.disabled = upgrades.player === 0;
-  }
+  playPauseBtn.disabled = upgrades.player === 0;
 }
 
-// Atualiza o botão ganhar pontos para refletir upgrade (exemplo)
+// Atualiza botão ganhar pontos com upgrade
 function updatePointsButtons() {
   const earnWin = openWindows.get('earn');
   if (!earnWin) return;
   const btn = earnWin.querySelector('#earnBtn');
   if (!btn) return;
 
-  // Ganho de pontos por clique aumenta com nível do upgrade "earn"
   const earnLevel = upgrades.earn || 0;
   btn.textContent = `Ganhar ${earnLevel + 1} ponto${earnLevel + 1 > 1 ? 's' : ''}`;
   btn.onclick = () => {
@@ -516,35 +491,44 @@ function updatePointsButtons() {
   };
 }
 
-// Capitalizar nomes
+// Play sons
+function playSound(name) {
+  const sound = document.getElementById(name + 'Sound');
+  if (!sound) return;
+  sound.currentTime = 0;
+  sound.play().catch(() => {});
+}
+
+// Capitaliza a primeira letra
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Inicialização upgrades que faltavam
-if (!('earn' in upgrades)) upgrades.earn = 0;
+// Eventos para abrir apps via barra
+taskbarApps.querySelectorAll('button').forEach(btn => {
+  btn.onclick = () => {
+    const app = btn.dataset.app;
+    if (app === 'earn') openEarnApp();
+    else if (app === 'store') openStoreApp();
+    else if (app === 'notepad') openNotepadApp();
+    else if (app === 'winamp') openWinampApp();
+  };
+});
 
-// Evento start button (menu iniciar)
-startButton.onclick = () => {
-  const startMenu = document.getElementById('startMenu');
-  if (startMenu.classList.contains('hidden')) {
-    startMenu.classList.remove('hidden');
-  } else {
-    startMenu.classList.add('hidden');
-  }
+// Toggle menu iniciar
+startButton.onclick = (e) => {
+  e.stopPropagation();
+  startMenu.classList.toggle('hidden');
   playSound('click');
 };
 
-// Fecha menu iniciar clicando fora
-document.addEventListener('click', (e) => {
-  const startMenu = document.getElementById('startMenu');
+// Fecha menu iniciar ao clicar fora
+document.addEventListener('click', e => {
   if (!startMenu.contains(e.target) && e.target !== startButton) {
     startMenu.classList.add('hidden');
   }
 });
 
-// Atualiza o relógio
+// Atualiza relógio e UI na inicialização
 updateClock();
-
-// Atualiza UI geral
 updateUI();
