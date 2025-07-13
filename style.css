@@ -5,9 +5,12 @@
   box-sizing: border-box;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
-/* Boot screen - agora com z-index alto pra ficar em cima */
+/* Boot screen */
 #bootScreen {
   position: fixed;
   inset: 0;
@@ -21,7 +24,6 @@
   z-index: 999999 !important;
 }
 
-/* Barra de progresso */
 #bootBar {
   width: 70%;
   height: 10px;
@@ -49,13 +51,14 @@
   position: relative;
   height: 100vh;
   overflow: hidden;
+  background: var(--desktop-bg, #0078d7);
+  transition: background 0.5s ease;
 }
 
-/* Papel de parede */
+/* Papel de parede upgrade */
 #wallpaper {
   position: absolute;
   inset: 0;
-  background-image: url('https://wallpapercave.com/wp/wp2708044.jpg');
   background-size: cover;
   background-position: center;
   transition: background-image 0.5s ease;
@@ -95,14 +98,16 @@
   color: white;
 }
 
-#startButton:hover {
+#startButton:hover,
+#startButton:focus {
   background: rgba(255 255 255 / 0.2);
+  outline: none;
 }
 
 /* Container dos ícones fixos dos apps */
 #taskbarApps {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
 }
 
@@ -110,19 +115,21 @@
 .appIcon {
   background: transparent;
   border: none;
-  font-size: 1.4em;
+  font-size: 1.5em;
   color: #ccc;
   cursor: pointer;
-  padding: 6px;
+  padding: 6px 8px;
   border-radius: 4px;
   position: relative;
   user-select: none;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.appIcon:hover {
+.appIcon:hover,
+.appIcon.active {
   background-color: rgba(255 255 255 / 0.3);
   color: white;
+  outline: none;
 }
 
 /* Tooltip com nome do app */
@@ -149,25 +156,11 @@
   opacity: 1;
 }
 
-/* Área para ícones das janelas abertas */
-#taskbarIcons {
-  display: flex;
-  flex: 1;
-  gap: 10px;
-  align-items: center;
-  overflow-x: auto;
-  scrollbar-width: none;
-  margin-left: 10px;
-}
-
-#taskbarIcons::-webkit-scrollbar {
-  display: none;
-}
-
-/* Ícone do relógio e pontos */
+/* Relógio e pontos */
 #taskbarRight {
+  margin-left: auto;
   display: flex;
-  gap: 15px;
+  gap: 20px;
   align-items: center;
   font-size: 0.9em;
 }
@@ -201,40 +194,35 @@
 /* Janela */
 .window {
   position: absolute;
-  background: rgba(255 255 255 / 0.9);
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  background: rgba(255 255 255 / 0.85);
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4);
   width: 350px;
   min-height: 250px;
   display: flex;
   flex-direction: column;
   user-select: text;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
   transition: box-shadow 0.2s ease;
   z-index: 10;
+  border: 1.5px solid rgba(255 255 255 / 0.4);
 }
 
 .window.blur {
-  backdrop-filter: blur(20px);
-}
-
-.window:focus,
-.window:hover {
-  box-shadow: 0 0 25px rgba(0,120,215,0.8);
-  z-index: 1000 !important;
+  backdrop-filter: blur(22px);
 }
 
 /* Barra de título */
 .window-header {
-  background: #0078d7;
+  background: rgba(0, 120, 215, 0.9);
   color: white;
-  padding: 8px 10px;
-  font-weight: 600;
+  padding: 10px 12px;
+  font-weight: 700;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
   cursor: grab;
   user-select: none;
 }
@@ -250,9 +238,9 @@
   color: white;
   font-size: 1.1em;
   cursor: pointer;
-  margin-left: 8px;
-  padding: 0 4px;
-  border-radius: 3px;
+  margin-left: 10px;
+  padding: 0 6px;
+  border-radius: 4px;
   transition: background-color 0.2s ease;
 }
 
@@ -276,21 +264,22 @@ textarea {
   font-family: Consolas, monospace;
   font-size: 1em;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 8px;
   padding: 10px;
   box-sizing: border-box;
+  background: rgba(255 255 255 / 0.95);
 }
 
-/* Botões de upgrade dentro da loja */
+/* Botões de upgrade */
 .upgrade {
-  margin: 6px 0;
-  padding: 10px 15px;
+  margin: 8px 0;
+  padding: 12px 18px;
   width: 100%;
   border: none;
   background: #0078d7;
   color: white;
-  font-weight: 600;
-  border-radius: 6px;
+  font-weight: 700;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.25s ease;
   user-select: none;
@@ -301,7 +290,7 @@ textarea {
 }
 
 .upgrade.disabled {
-  background: #999;
+  background: #666;
   cursor: default;
   pointer-events: none;
 }
@@ -314,43 +303,89 @@ textarea {
   max-width: 320px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   z-index: 1100;
   user-select: none;
 }
 
+/* Notificação individual */
 .notification {
   background: #0078d7;
   color: white;
-  padding: 12px 15px;
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  padding: 14px 18px;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(0,120,215,0.5);
   animation: fadeInOut 4s forwards;
-  font-weight: 600;
+  font-weight: 700;
 }
 
+/* Animação fade */
 @keyframes fadeInOut {
   0%, 100% {opacity: 0;}
   10%, 90% {opacity: 1;}
 }
 
-/* Conquista */
-#achievement {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: gold;
-  color: black;
-  padding: 12px 20px;
-  font-weight: 700;
-  border-radius: 10px;
-  box-shadow: 0 0 12px gold;
-  z-index: 1100;
-  user-select: none;
-}
-
 /* Cursor customizado upgrade */
 .custom-cursor {
   cursor: url('https://cdn-icons-png.flaticon.com/512/32/32441.png'), auto;
+}
+
+/* Player de música estilizado */
+.music-player {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.music-list {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #0078d7;
+  border-radius: 6px;
+  padding: 8px;
+  background: rgba(255 255 255 / 0.95);
+}
+
+.music-list button {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 6px 10px;
+  width: 100%;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 5px;
+  transition: background-color 0.25s ease;
+}
+
+.music-list button:hover,
+.music-list button.active {
+  background: #0078d7;
+  color: white;
+}
+
+.music-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.music-controls button {
+  background: #0078d7;
+  border: none;
+  color: white;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.music-controls button:hover:enabled {
+  background: #005a9e;
+}
+
+.music-controls button:disabled {
+  background: #aaa;
+  cursor: default;
 }
