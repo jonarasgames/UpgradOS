@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>UpgradOS</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <!-- Tela de Boot -->
@@ -12,9 +12,11 @@
     <div id="bootBar"><div class="progress"></div></div>
   </div>
 
-  <!-- Área do Desktop -->
+  <!-- Desktop -->
   <div id="desktop" class="hidden">
-    <div id="taskbar">Início | Pontos: <span id="points">0</span></div>
+    <div id="taskbar">
+      Início | Pontos: <span id="points">0</span>
+    </div>
 
     <div id="icons">
       <button id="earnBtn" class="icon">💾 Ganhar Pontos</button>
@@ -23,7 +25,6 @@
       <button id="winampBtn" class="icon">🎵 Winamp</button>
     </div>
 
-    <!-- Loja -->
     <div id="storeWindow" class="window hidden">
       <div class="window-header">
         Loja de Upgrades
@@ -36,22 +37,26 @@
       </div>
     </div>
 
-    <!-- Notepad -->
     <div id="notepad" class="window hidden">
-      <div class="window-header">Notepad <button class="closeBtn">✖</button></div>
-      <div class="window-body"><textarea rows="8" cols="30">Escreva algo aqui...</textarea></div>
+      <div class="window-header">
+        Notepad
+        <button class="closeBtn">✖</button>
+      </div>
+      <div class="window-body">
+        <textarea rows="8" cols="30">Escreva algo aqui...</textarea>
+      </div>
     </div>
 
-    <!-- Winamp -->
     <div id="winamp" class="window hidden">
-      <div class="window-header">Winamp Player <button class="closeBtn">✖</button></div>
+      <div class="window-header">
+        Winamp Player
+        <button class="closeBtn">✖</button>
+      </div>
       <div class="window-body">🎶 Tocando: nostalgia.mp3 (fake)</div>
     </div>
 
-    <!-- Notificações -->
     <div id="notifications"></div>
 
-    <!-- Conquista -->
     <div id="achievement" class="hidden">🏆 Todos os upgrades desbloqueados!</div>
   </div>
 
@@ -59,7 +64,8 @@
   <audio id="clickSound" src="sounds/click.mp3"></audio>
   <audio id="errorSound" src="sounds/error.mp3"></audio>
   <audio id="notifySound" src="sounds/notify.mp3"></audio>
-  <audio id="bootSound" src="sounds/boot.mp3"></audio>
+  <!-- Som de boot removido para evitar bloqueio -->
+  <!-- <audio id="bootSound" src="sounds/boot.mp3"></audio> -->
 
   <script src="script.js"></script>
 </body>
