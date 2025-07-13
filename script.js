@@ -18,17 +18,27 @@ const errorSound = document.getElementById("errorSound");
 const notifySound = document.getElementById("notifySound");
 const bootSound = document.getElementById("bootSound");
 
-// ✅ BOOT SCREEN com DOMContentLoaded seguro
+let firstInteraction = false;
+
+// Marca quando o usuário clicar pela primeira vez
+window.addEventListener("click", () => {
+  if (!firstInteraction) {
+    firstInteraction = true;
+    playSound("boot"); // toca o som de boot no primeiro clique
+  }
+});
+
 window.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
     document.getElementById("bootScreen").classList.add("hidden");
     document.getElementById("desktop").classList.remove("hidden");
     updateUI();
-    playSound("boot");
-  }, 3100); // duração da barra de loading
+  }, 3100);
 });
 
 function playSound(type) {
+  if (!firstInteraction && type !== "boot") return; // só permite som se tiver interação, exceto boot que toca após interação
+
   try {
     if (type === "click") clickSound.play();
     if (type === "error") errorSound.play();
@@ -56,7 +66,7 @@ function updateUI() {
   }
 
   if (upgrades.length >= 3) {
-    document.getElementById("achievement").classList.remove("hidden");
+    achievementPopup.classList.remove("hidden");
   }
 }
 
