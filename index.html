@@ -2,11 +2,12 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>UpgradOS</title>
+  <title>UpgradOS - Demo Minimalista</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Tela de Boot -->
+
+  <!-- Boot Screen -->
   <div id="bootScreen">
     <h1>Inicializando UpgradOS...</h1>
     <div id="bootBar"><div class="progress"></div></div>
@@ -25,6 +26,7 @@
       <button id="winampBtn" class="icon">🎵 Winamp</button>
     </div>
 
+    <!-- Loja -->
     <div id="storeWindow" class="window hidden">
       <div class="window-header">
         Loja de Upgrades
@@ -37,6 +39,7 @@
       </div>
     </div>
 
+    <!-- Notepad -->
     <div id="notepad" class="window hidden">
       <div class="window-header">
         Notepad
@@ -47,16 +50,21 @@
       </div>
     </div>
 
+    <!-- Winamp -->
     <div id="winamp" class="window hidden">
       <div class="window-header">
         Winamp Player
         <button class="closeBtn">✖</button>
       </div>
-      <div class="window-body">🎶 Tocando: nostalgia.mp3 (fake)</div>
+      <div class="window-body">
+        🎶 Tocando: nostalgia.mp3 (fake)
+      </div>
     </div>
 
+    <!-- Notificações -->
     <div id="notifications"></div>
 
+    <!-- Conquista -->
     <div id="achievement" class="hidden">🏆 Todos os upgrades desbloqueados!</div>
   </div>
 
@@ -64,8 +72,7 @@
   <audio id="clickSound" src="sounds/click.mp3"></audio>
   <audio id="errorSound" src="sounds/error.mp3"></audio>
   <audio id="notifySound" src="sounds/notify.mp3"></audio>
-  <!-- Som de boot removido para evitar bloqueio -->
-  <!-- <audio id="bootSound" src="sounds/boot.mp3"></audio> -->
+  <audio id="bootSound" src="sounds/boot.mp3"></audio>
 
   <script src="script.js"></script>
 </body>
