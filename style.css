@@ -1,394 +1,276 @@
-/* Reset e fonte */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  user-select: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  scroll-behavior: smooth;
+:root {
+  --taskbar-color: #222;
+  --taskbar-height: 40px;
+  --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  /* Backgrounds por nível */
+  --level-bg-1: rgba(240, 240, 240, 0.9);
+  --level-bg-2: rgba(230, 230, 255, 0.8);
+  --level-bg-3: rgba(220, 235, 255, 0.7);
+  --level-bg-4: rgba(210, 245, 255, 0.6);
+  --level-bg-5: rgba(200, 255, 255, 0.5);
+
+  --aero-blur: blur(12px);
+  --default-bg: linear-gradient(to bottom, #ddd, #bbb);
+
+  --cursor-default: auto;
+  --cursor-upgrade1: url('icons/cursor1.cur'), auto;
+  --cursor-upgrade2: url('icons/cursor2.cur'), auto;
+  --cursor-upgrade3: url('icons/cursor3.cur'), auto;
+  --cursor-upgrade4: url('icons/cursor4.cur'), auto;
+  --cursor-upgrade5: url('icons/cursor5.cur'), auto;
 }
 
-/* Tela de boot */
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: #000;
+  overflow: hidden;
+  cursor: var(--cursor-default);
+  transition: background 0.5s;
+}
+
 #bootScreen {
   position: fixed;
   inset: 0;
-  background: #111;
+  background: #000;
   color: #0f0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  font-size: 2em;
-  z-index: 999999 !important;
+  justify-content: center;
+  font-size: 20px;
+  z-index: 9999;
 }
 
 #bootBar {
-  width: 70%;
-  height: 10px;
-  background: #222;
-  margin-top: 20px;
-  border-radius: 5px;
-  overflow: hidden;
+  width: 200px;
+  height: 8px;
+  border: 1px solid #0f0;
+  margin-top: 10px;
 }
-
 #bootBar .progress {
   height: 100%;
   width: 0%;
   background: #0f0;
-  animation: loadProgress 3s linear forwards;
+  animation: bootload 3s forwards;
 }
-
-@keyframes loadProgress {
+@keyframes bootload {
   to {
     width: 100%;
   }
 }
 
-/* Desktop */
 #desktop {
-  position: relative;
-  height: 100vh;
-  overflow: hidden;
-  background: var(--desktop-bg, #0078d7);
-  transition: background 0.5s ease;
-  cursor: default;
+  position: fixed;
+  inset: 0;
+  background: var(--default-bg);
+  transition: background 0.5s;
 }
 
-/* Papel de parede upgrade */
+#windowsContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: var(--taskbar-height);
+}
+
 #wallpaper {
   position: absolute;
   inset: 0;
   background-size: cover;
   background-position: center;
+  z-index: -1;
   transition: background-image 0.5s ease;
-  z-index: 0;
-}
-
-/* Blur upgrade nas janelas */
-.window.blur {
-  backdrop-filter: blur(15px);
-  background: rgba(255 255 255 / 0.25);
-  border: 1.5px solid rgba(255 255 255 / 0.4);
 }
 
 /* Barra de tarefas */
 #taskbar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: rgba(0, 120, 215, 0.85);
-  backdrop-filter: blur(12px);
+  height: var(--taskbar-height);
+  background: var(--taskbar-color);
+  color: white;
   display: flex;
   align-items: center;
   padding: 0 10px;
-  z-index: 10000;
-  color: white;
-  font-weight: 600;
+  justify-content: space-between;
   user-select: none;
+  transition: background-color 0.5s ease;
 }
 
-/* Botão iniciar */
+/* Barra transparente - nível de upgrade */
+.taskbar-transparent-1 { background-color: rgba(34, 34, 34, 0.85); }
+.taskbar-transparent-2 { background-color: rgba(34, 34, 34, 0.7); }
+.taskbar-transparent-3 { background-color: rgba(34, 34, 34, 0.55); }
+.taskbar-transparent-4 { background-color: rgba(34, 34, 34, 0.4); }
+.taskbar-transparent-5 { background-color: rgba(34, 34, 34, 0.25); }
+
 #startButton {
-  background: transparent;
+  background: none;
   border: none;
   cursor: pointer;
-  margin-right: 10px;
-  padding: 5px;
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s ease;
-  color: white;
 }
 
-#startButton:hover,
-#startButton:focus {
-  background: rgba(255 255 255 / 0.2);
-  outline: none;
-}
-
-/* Container dos ícones fixos dos apps */
 #taskbarApps {
   display: flex;
   gap: 10px;
-  align-items: center;
 }
-
-/* Ícones dos apps na barra */
 .appIcon {
+  font-size: 20px;
   background: transparent;
   border: none;
-  font-size: 1.5em;
-  color: #ccc;
-  cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 4px;
-  position: relative;
-  user-select: none;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.appIcon:hover,
-.appIcon.active {
-  background-color: rgba(255 255 255 / 0.3);
   color: white;
-  outline: none;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s ease;
+  user-select: none;
+}
+.appIcon:hover {
+  transform: scale(1.2);
 }
 
-/* Tooltip com nome do app */
-.appIcon::after {
-  content: attr(title);
+/* Indicador ativo no ícone */
+.appIcon.active::after {
+  content: '';
   position: absolute;
-  bottom: 45px;
+  bottom: 2px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0,0,0,0.75);
-  color: white;
-  font-size: 0.8em;
-  padding: 3px 7px;
-  border-radius: 4px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  user-select: none;
-  z-index: 10001;
+  width: 6px;
+  height: 6px;
+  background: lime;
+  border-radius: 50%;
 }
 
-.appIcon:hover::after {
-  opacity: 1;
-}
-
-/* Relógio e pontos */
+/* direita da barra */
 #taskbarRight {
-  margin-left: auto;
   display: flex;
   gap: 20px;
   align-items: center;
-  font-size: 0.9em;
-}
-
-/* Pontos */
-#pointsLabel {
-  user-select: text;
-}
-
-/* Relógio */
-#clock {
-  user-select: text;
-  font-weight: 400;
+  font-size: 14px;
 }
 
 /* Menu iniciar */
 #startMenu {
-  position: fixed;
-  bottom: 40px;
+  position: absolute;
+  bottom: var(--taskbar-height);
   left: 10px;
-  width: 250px;
-  background: rgba(255 255 255 / 0.95);
-  box-shadow: 0 0 15px rgba(0,0,0,0.25);
-  border-radius: 8px;
-  padding: 10px;
-  z-index: 10001;
-  transition: opacity 0.3s ease;
+  background: white;
+  width: 200px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 8px rgba(0,0,0,0.3);
   user-select: none;
 }
 
-/* Janela */
+/* Janelas */
 .window {
   position: absolute;
-  background: rgba(255 255 255 / 0.95);
-  border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.4);
   width: 350px;
-  min-height: 250px;
+  height: 250px;
+  background: var(--level-bg-1);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
-  user-select: text;
-  transition: box-shadow 0.2s ease;
-  z-index: 10;
-  border: 1.5px solid rgba(0,0,0,0.15);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+.window.blur {
+  backdrop-filter: var(--aero-blur);
 }
 
-/* Barra de título */
+/* Janela efeito Aero Blur e níveis wallpaper */
+.window[data-upgrade-wallpaper-level='1'] { background: var(--level-bg-1); }
+.window[data-upgrade-wallpaper-level='2'] { background: var(--level-bg-2); }
+.window[data-upgrade-wallpaper-level='3'] { background: var(--level-bg-3); }
+.window[data-upgrade-wallpaper-level='4'] { background: var(--level-bg-4); }
+.window[data-upgrade-wallpaper-level='5'] {
+  background: var(--level-bg-5);
+  backdrop-filter: var(--aero-blur);
+}
+
 .window-header {
-  background: rgba(0, 120, 215, 0.9);
+  background: #444;
   color: white;
-  padding: 10px 12px;
-  font-weight: 700;
+  padding: 6px 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  cursor: grab;
+  cursor: move;
   user-select: none;
 }
-
-.window-header.dragging {
-  cursor: grabbing;
-}
-
-/* Botões da janela */
 .window-header button {
-  background: transparent;
+  background: none;
   border: none;
   color: white;
-  font-size: 1.1em;
+  margin-left: 5px;
   cursor: pointer;
-  margin-left: 10px;
-  padding: 0 6px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-}
-
-.window-header button:hover {
-  background: rgba(255 255 255 / 0.3);
-}
-
-/* Corpo da janela */
-.window-body {
-  padding: 15px;
-  flex: 1;
-  overflow: auto;
-  color: #222;
-}
-
-/* Notepad textarea */
-textarea {
-  width: 100%;
-  height: 100%;
-  resize: none;
-  font-family: Consolas, monospace;
-  font-size: 1em;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 10px;
-  box-sizing: border-box;
-  background: rgba(255 255 255 / 0.95);
-}
-
-/* Botões de upgrade */
-.upgrade {
-  margin: 8px 0;
-  padding: 12px 18px;
-  width: 100%;
-  border: none;
-  background: #0078d7;
-  color: white;
-  font-weight: 700;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
   user-select: none;
 }
-
-.upgrade:hover:not(.disabled) {
-  background: #005a9e;
-}
-
-.upgrade.disabled {
-  background: #666;
-  cursor: default;
-  pointer-events: none;
+.window-body {
+  flex-grow: 1;
+  padding: 10px;
+  background: white;
+  overflow: auto;
+  user-select: text;
 }
 
 /* Notificações */
 #notifications {
   position: fixed;
-  bottom: 60px;
-  right: 15px;
-  max-width: 320px;
+  bottom: 50px;
+  right: 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  z-index: 1100;
+  gap: 8px;
+  z-index: 10000;
+}
+.notification {
+  background: #222;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 6px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.4);
+  animation: fadeInOut 4s ease-in-out;
   user-select: none;
 }
-
-/* Notificação individual */
-.notification {
-  background: #0078d7;
-  color: white;
-  padding: 14px 18px;
-  border-radius: 10px;
-  box-shadow: 0 0 12px rgba(0,120,215,0.5);
-  animation: fadeInOut 4s forwards;
-  font-weight: 700;
-}
-
-/* Animação fade */
 @keyframes fadeInOut {
-  0%, 100% {opacity: 0;}
-  10%, 90% {opacity: 1;}
+  0% { opacity: 0; transform: translateY(10px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(10px); }
 }
 
-/* Cursor customizado upgrade */
-.custom-cursor {
-  cursor: url('https://cdn-icons-png.flaticon.com/512/32/32441.png'), auto !important;
-}
-
-/* Player de música estilizado */
+/* Música */
 .music-player {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
 }
-
-.music-list {
-  max-height: 150px;
-  overflow-y: auto;
-  border: 1px solid #0078d7;
-  border-radius: 6px;
-  padding: 8px;
-  background: rgba(255 255 255 / 0.95);
-}
-
-.music-list button {
-  background: transparent;
-  border: none;
-  text-align: left;
-  padding: 6px 10px;
-  width: 100%;
-  cursor: pointer;
-  font-weight: 600;
-  border-radius: 5px;
-  transition: background-color 0.25s ease;
-}
-
-.music-list button:hover,
-.music-list button.active {
-  background: #0078d7;
-  color: white;
-}
-
 .music-controls {
   display: flex;
   gap: 10px;
   justify-content: center;
 }
-
-.music-controls button {
-  background: #0078d7;
-  border: none;
+.music-list {
+  max-height: 150px;
+  overflow-y: auto;
+}
+.music-list button.active {
+  background: #0099ff;
   color: white;
-  font-weight: 700;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
+  border-radius: 4px;
 }
 
-.music-controls button:hover:enabled {
-  background: #005a9e;
-}
+/* Cursor customizado, com 5 níveis */
+body.cursor-level-1 { cursor: var(--cursor-upgrade1); }
+body.cursor-level-2 { cursor: var(--cursor-upgrade2); }
+body.cursor-level-3 { cursor: var(--cursor-upgrade3); }
+body.cursor-level-4 { cursor: var(--cursor-upgrade4); }
+body.cursor-level-5 { cursor: var(--cursor-upgrade5); }
 
-.music-controls button:disabled {
-  background: #aaa;
-  cursor: default;
+/* Hidden util */
+.hidden {
+  display: none !important;
 }
