@@ -1,201 +1,191 @@
-body {
+/* Reset */
+* {
   margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #1e1e2f;
-  color: white;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Tela de Boot */
+#bootScreen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #111;
+  color: #0f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 2em;
+  user-select: none;
+  z-index: 9999;
+}
+
+#bootBar {
+  width: 70%;
+  height: 10px;
+  background: #222;
+  margin-top: 20px;
+  border-radius: 5px;
   overflow: hidden;
 }
 
+#bootBar .progress {
+  height: 100%;
+  width: 0%;
+  background: #0f0;
+  animation: loadProgress 3s linear forwards;
+}
+
+@keyframes loadProgress {
+  to { width: 100%; }
+}
+
+/* Desktop */
 #desktop {
+  padding: 15px;
   height: 100vh;
-  background-image: url('https://wallpapercave.com/wp/wp2757874.jpg');
+  background: #f0f0f0;
   background-size: cover;
   background-position: center;
-  display: flex;
-  flex-direction: column;
+}
+
+.hidden {
+  display: none !important;
 }
 
 #taskbar {
-  background: rgba(0, 0, 0, 0.6);
+  background: #0078d7;
+  color: white;
   padding: 10px;
   font-weight: bold;
+  user-select: none;
+  margin-bottom: 20px;
+  border-radius: 5px;
 }
 
+/* Ícones */
 #icons {
   display: flex;
   gap: 15px;
-  padding: 20px;
-  flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
 .icon {
-  background: rgba(255,255,255,0.1);
-  border: none;
-  padding: 10px 15px;
-  color: white;
-  font-size: 16px;
-  border-radius: 6px;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 1.2em;
   cursor: pointer;
-  backdrop-filter: none;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
+  user-select: none;
 }
 
 .icon:hover {
-  background: rgba(255,255,255,0.2);
+  background-color: #0078d7;
+  color: white;
 }
 
+/* Janelas */
 .window {
-  background: rgba(30, 30, 30, 0.95);
-  border: 1px solid #888;
-  border-radius: 10px;
-  width: 300px;
-  margin: 20px;
-  padding: 0;
-  position: absolute;
+  position: fixed;
   top: 100px;
-  left: 50px;
-  z-index: 10;
-  overflow: hidden;
-  box-shadow: 0 0 10px #0005;
-}
-
-.window.blur {
-  backdrop-filter: blur(12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  z-index: 1000;
+  user-select: none;
 }
 
 .window-header {
-  background: #222;
+  background: #0078d7;
+  color: white;
   padding: 10px;
   font-weight: bold;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #555;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
-.window-body {
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-textarea {
-  width: 100%;
-  height: 100px;
-  resize: none;
-  background: #111;
-  color: #eee;
-  border: 1px solid #555;
-  border-radius: 5px;
-  padding: 5px;
-}
-
-.upgrade {
-  background: #444;
-  color: white;
+.window-header button {
+  background: transparent;
   border: none;
-  padding: 8px;
-  border-radius: 5px;
+  color: white;
+  font-size: 1.1em;
   cursor: pointer;
 }
 
-.upgrade:hover {
-  background: #666;
+.window-body {
+  padding: 15px;
+  font-size: 1em;
+  color: #333;
 }
 
-.hidden {
-  display: none;
+.window-body textarea {
+  width: 100%;
+  resize: none;
+  font-family: monospace;
+  font-size: 1em;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
 /* Notificações */
 #notifications {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 99;
+  bottom: 15px;
+  right: 15px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  max-width: 300px;
+  z-index: 1100;
 }
 
 .notification {
-  background: rgba(0,0,0,0.75);
-  padding: 10px 20px;
-  border-left: 5px solid #00aaff;
-  border-radius: 6px;
-  animation: fadeInOut 4s ease forwards;
-  font-size: 14px;
-  max-width: 300px;
-  backdrop-filter: blur(6px);
+  background: #0078d7;
+  color: white;
+  padding: 12px 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  animation: fadeInOut 4s forwards;
 }
 
 @keyframes fadeInOut {
-  0% { opacity: 0; transform: translateY(20px); }
-  10% { opacity: 1; transform: translateY(0); }
-  90% { opacity: 1; }
-  100% { opacity: 0; transform: translateY(20px); }
+  0%, 100% {opacity: 0;}
+  10%, 90% {opacity: 1;}
 }
 
 /* Conquista */
 #achievement {
   position: fixed;
   top: 20px;
-  right: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   background: gold;
   color: black;
   padding: 12px 20px;
   font-weight: bold;
   border-radius: 10px;
-  animation: popIn 1s ease forwards;
-  box-shadow: 0 0 10px #0005;
-  z-index: 100;
+  box-shadow: 0 0 12px gold;
+  z-index: 1100;
+  user-select: none;
 }
 
-@keyframes popIn {
-  from { transform: scale(0.5); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+/* Blur upgrade */
+.blur {
+  backdrop-filter: blur(8px);
 }
 
-/* Boot Screen */
-#bootScreen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  font-size: 22px;
-}
-
-#bootBar {
-  width: 60%;
-  height: 8px;
-  background: #444;
-  margin-top: 20px;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-#bootBar .progress {
-  width: 0%;
-  height: 100%;
-  background: #00aaff;
-  animation: loadBar 3s forwards;
-}
-
-@keyframes loadBar {
-  0% { width: 0%; }
-  100% { width: 100%; }
-}
-
-/* Cursor customizado */
-body.custom-cursor {
-  cursor: url('https://cur.cursors-4u.net/cursors/cur-11/cur1004.cur'), auto;
+/* Cursor customizado upgrade */
+.custom-cursor {
+  cursor: url('https://cdn-icons-png.flaticon.com/512/32/32441.png'), auto;
 }
