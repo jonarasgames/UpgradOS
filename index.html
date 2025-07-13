@@ -9,19 +9,19 @@
 <body>
 
   <!-- Tela de boot -->
-  <div id="bootScreen" role="alert" aria-live="assertive">
+  <div id="bootScreen">
     <h1>Inicializando UpgradOS...</h1>
     <div id="bootBar"><div class="progress"></div></div>
   </div>
 
   <!-- Desktop -->
   <div id="desktop" class="hidden" role="main" aria-label="Área de trabalho">
-    <div id="wallpaper" aria-hidden="true"></div>
+    <div id="wallpaper"></div>
     <div id="windowsContainer"></div>
 
     <!-- Barra de tarefas -->
-    <div id="taskbar" role="navigation" aria-label="Barra de tarefas">
-      <button id="startButton" title="Iniciar" aria-label="Botão Iniciar">
+    <div id="taskbar">
+      <button id="startButton" title="Iniciar" aria-label="Iniciar">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="white" aria-hidden="true">
           <rect x="3" y="4" width="7" height="7" />
           <rect x="3" y="13" width="7" height="7" />
@@ -48,7 +48,7 @@
       <p style="padding: 10px; color: #444;">Menu Iniciar (em construção)</p>
     </div>
 
-    <!-- Notificacoes -->
+    <!-- Notificações -->
     <div id="notifications" aria-live="assertive" aria-atomic="true"></div>
   </div>
 
@@ -57,9 +57,8 @@
   <audio id="errorSound" src="sounds/error.mp3" preload="auto"></audio>
   <audio id="notifySound" src="sounds/notify.mp3" preload="auto"></audio>
   <audio id="bootSound" src="sounds/boot.mp3" preload="auto"></audio>
-  <audio id="systemSound" src="sounds/system.mp3" preload="auto"></audio>
 
-  <!-- Scripts -->
-  <script src="script.js" defer></script>
+  <!-- Script -->
+  <script src="script.js"></script>
 </body>
 </html>
