@@ -1,79 +1,60 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>UpgradOS - Demo Minimalista</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>UpgradOS - Estilo Windows 10</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- Boot Screen -->
-  <div id="bootScreen">
-    <h1>Inicializando UpgradOS...</h1>
-    <div id="bootBar"><div class="progress"></div></div>
+<!-- Boot Screen -->
+<div id="bootScreen">
+  <h1>Inicializando UpgradOS...</h1>
+  <div id="bootBar"><div class="progress"></div></div>
+</div>
+
+<!-- Desktop -->
+<div id="desktop" class="hidden">
+  
+  <!-- Papel de parede -->
+  <div id="wallpaper"></div>
+  
+  <!-- Janelas abertas vão aqui -->
+  <div id="windowsContainer"></div>
+
+  <!-- Barra de tarefas -->
+  <div id="taskbar">
+    <button id="startButton" title="Iniciar">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><rect x="3" y="4" width="7" height="7" /><rect x="3" y="13" width="7" height="7" /><rect x="14" y="4" width="7" height="7" /><rect x="14" y="13" width="7" height="7" /></svg>
+    </button>
+
+    <div id="taskbarIcons"></div>
+
+    <div id="taskbarRight">
+      <span id="pointsLabel">Pontos: <span id="points">0</span></span>
+      <span id="clock"></span>
+    </div>
   </div>
 
-  <!-- Desktop -->
-  <div id="desktop" class="hidden">
-    <div id="taskbar">
-      Início | Pontos: <span id="points">0</span>
+  <!-- Menu Iniciar -->
+  <div id="startMenu" class="hidden">
+    <div class="startMenuSection">
+      <h3>Aplicativos</h3>
+      <div class="appIcon" data-app="earn" title="Ganhar Pontos">💾</div>
+      <div class="appIcon" data-app="store" title="Loja">🛒</div>
+      <div class="appIcon" data-app="notepad" title="Notepad">📝</div>
+      <div class="appIcon" data-app="winamp" title="Winamp">🎵</div>
     </div>
-
-    <div id="icons">
-      <button id="earnBtn" class="icon">💾 Ganhar Pontos</button>
-      <button id="storeBtn" class="icon">🛒 Loja</button>
-      <button id="notepadBtn" class="icon">📝 Notepad</button>
-      <button id="winampBtn" class="icon">🎵 Winamp</button>
-    </div>
-
-    <!-- Loja -->
-    <div id="storeWindow" class="window hidden">
-      <div class="window-header">
-        Loja de Upgrades
-        <button class="closeBtn">✖</button>
-      </div>
-      <div class="window-body">
-        <button class="upgrade" data-cost="10" data-upgrade="wallpaper">🖼 Novo Papel de Parede (10 pts)</button>
-        <button class="upgrade" data-cost="20" data-upgrade="blur">🌫 Ativar Blur (20 pts)</button>
-        <button class="upgrade" data-cost="15" data-upgrade="cursor">🖱 Novo Cursor (15 pts)</button>
-      </div>
-    </div>
-
-    <!-- Notepad -->
-    <div id="notepad" class="window hidden">
-      <div class="window-header">
-        Notepad
-        <button class="closeBtn">✖</button>
-      </div>
-      <div class="window-body">
-        <textarea rows="8" cols="30">Escreva algo aqui...</textarea>
-      </div>
-    </div>
-
-    <!-- Winamp -->
-    <div id="winamp" class="window hidden">
-      <div class="window-header">
-        Winamp Player
-        <button class="closeBtn">✖</button>
-      </div>
-      <div class="window-body">
-        🎶 Tocando: nostalgia.mp3 (fake)
-      </div>
-    </div>
-
-    <!-- Notificações -->
-    <div id="notifications"></div>
-
-    <!-- Conquista -->
-    <div id="achievement" class="hidden">🏆 Todos os upgrades desbloqueados!</div>
   </div>
+</div>
 
-  <!-- Áudios -->
-  <audio id="clickSound" src="sounds/click.mp3"></audio>
-  <audio id="errorSound" src="sounds/error.mp3"></audio>
-  <audio id="notifySound" src="sounds/notify.mp3"></audio>
-  <audio id="bootSound" src="sounds/boot.mp3"></audio>
+<!-- Sons -->
+<audio id="clickSound" src="sounds/click.mp3"></audio>
+<audio id="errorSound" src="sounds/error.mp3"></audio>
+<audio id="notifySound" src="sounds/notify.mp3"></audio>
+<audio id="bootSound" src="sounds/boot.mp3"></audio>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
