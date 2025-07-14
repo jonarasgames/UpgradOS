@@ -1,476 +1,535 @@
-// script.js - completo com janelas, upgrades, calculadora, blur, wallpaper animado, arrastar e redimensionar
+"use strict";
 
-document.addEventListener("DOMContentLoaded", () => {
-  const bootScreen = document.getElementById("bootScreen");
-  const desktop = document.getElementById("desktop");
-  const wallpaper = document.getElementById("wallpaper");
-  const windowsContainer = document.getElementById("windowsContainer");
-  const pointsLabel = document.getElementById("points");
-  const notifications = document.getElementById("notifications");
-  const clickSound = document.getElementById("clickSound");
-  const errorSound = document.getElementById("errorSound");
-  const notifySound = document.getElementById("notifySound");
-  const bootSound = document.getElementById("bootSound");
+// Elementos DOM
+const bootScreen = document.getElementById("bootScreen");
+const bootProgress = document.querySelector("#bootBar .progress");
+const desktop = document.getElementById("desktop");
+const wallpaper = document.getElementById("wallpaper");
+const windowsContainer = document.getElementById("windowsContainer");
+const startButton = document.getElementById("startButton");
+const startMenu = document.getElementById("startMenu");
+const notifications = document.getElementById("notifications");
 
-  const taskbarApps = document.getElementById("taskbarApps");
+const pointsLabel = document.getElementById("points");
+const clockLabel = document.getElementById("clock");
 
-  // Estado do sistema
-  let points = 0;
-  let upgradeLevel = 0; // 0 a 5
-  let windows = {};
-  let zIndexCounter = 100;
+const clickSound = document.getElementById("clickSound");
+const errorSound = document.getElementById("errorSound");
+const notifySound = document.getElementById("notifySound");
+const bootSound = document.getElementById("bootSound");
 
-  // Map app para funções de criação janela
-  const appCreators = {
-    earn: createEarnWindow,
-    store: createStoreWindow,
-    notepad: createNotepadWindow,
-    winamp: createWinampWindow,
-    bet: createBetWindow,
-    calculator: createCalculatorWindow
-  };
+// Estado do sistema
+let points = 0;
+let windows = [];
+let zIndexCounter = 10;
+let wallpaperLevel = 0;
+let blurLevel = 2; // default blur level nas janelas
+let activeWindow = null;
 
-  // Atualiza pontos no display
-  function updatePoints(amount) {
-    points += amount;
-    if (points < 0) points = 0;
-    pointsLabel.textContent = points;
-  }
-
-  // Notificação temporária
-  function notify(msg) {
-    notifications.textContent = msg;
-    notifications.style.opacity = "1";
-    notifySound.play();
-    setTimeout(() => {
-      notifications.style.opacity = "0";
-    }, 3000);
-  }
-
-  // Atualiza relógio na barra
-  function updateClock() {
-    const clock = document.getElementById("clock");
-    const now = new Date();
-    clock.textContent = now.toLocaleTimeString();
-  }
-  setInterval(updateClock, 1000);
-  updateClock();
-
-  // Função para atualizar wallpaper e blur baseado no upgradeLevel
-  function updateVisuals() {
-    // Wallpaper
-    wallpaper.className = "";
-    wallpaper.classList.add(`wallpaper-level-${upgradeLevel}`);
-
-    // Atualiza todas as janelas abertas com o blur
-    Object.values(windows).forEach(win => {
-      const content = win.querySelector(".window-content");
-      // Remove todas as blur classes antigas
-      for (let i = 0; i <= 5; i++) {
-        content.classList.remove(`blur-level-${i}`);
-      }
-      content.classList.add(`blur-level-${upgradeLevel}`);
-    });
-  }
-
-  // Chama updateVisuals no começo
-  updateVisuals();
-
-  // Cria janela base com header e conteúdo
-  function createWindow(appId, title) {
-    if (windows[appId]) {
-      bringToFront(windows[appId]);
-      return windows[appId];
-    }
-
-    const win = document.createElement("div");
-    win.classList.add("window");
-    win.style.top = "100px";
-    win.style.left = "100px";
-    win.style.zIndex = ++zIndexCounter;
-
-    // Header
-    const header = document.createElement("div");
-    header.classList.add("window-header");
-    header.textContent = title;
-
-    // Controles fechar e minimizar (minimizar fecha janela aqui)
-    const controls = document.createElement("div");
-    controls.classList.add("controls");
-
-    const btnClose = document.createElement("button");
-    btnClose.textContent = "×";
-    btnClose.title = "Fechar";
-    btnClose.onclick = () => {
-      win.remove();
-      delete windows[appId];
-    };
-
-    controls.appendChild(btnClose);
-    header.appendChild(controls);
-    win.appendChild(header);
-
-    // Conteúdo
-    const content = document.createElement("div");
-    content.classList.add("window-content");
-    content.style.flex = "1";
-    content.style.padding = "15px";
-    content.style.overflow = "auto";
-
-    // Blur level
-    content.classList.add(`blur-level-${upgradeLevel}`);
-
-    win.appendChild(content);
-
-    // Drag funcionalidade
-    dragElement(win, header);
-
-    // Resizable pelo CSS (resize: both) já no CSS
-
-    windowsContainer.appendChild(win);
-    windows[appId] = win;
-
-    // Atualiza wallpaper e blur caso necessário
-    updateVisuals();
-
-    // Trazer para frente
-    win.addEventListener("mousedown", () => bringToFront(win));
-
-    return win;
-  }
-
-  // Função para trazer janela para frente
-  function bringToFront(win) {
-    zIndexCounter++;
-    win.style.zIndex = zIndexCounter;
-  }
-
-  // --------------------------
-  // Apps
-
-  // 1. Ganhar Pontos (simples)
-  function createEarnWindow() {
-    const win = createWindow("earn", "Ganhar Pontos");
-    const content = win.querySelector(".window-content");
-    content.innerHTML = "";
-
-    const btn = document.createElement("button");
-    btn.textContent = "Clique para ganhar 10 pontos";
-    btn.style.fontSize = "18px";
-    btn.style.padding = "12px 24px";
-    btn.style.cursor = "pointer";
-    btn.style.borderRadius = "12px";
-    btn.style.border = "none";
-    btn.style.background = "#00aaff";
-    btn.style.color = "#fff";
-    btn.style.userSelect = "none";
-
-    btn.onclick = () => {
-      updatePoints(10);
-      clickSound.play();
-      notify("Você ganhou 10 pontos!");
-      checkUpgrade();
-    };
-
-    content.appendChild(btn);
-    return win;
-  }
-
-  // 2. Loja (Upgrades)
-  function createStoreWindow() {
-    const win = createWindow("store", "Loja - Upgrades");
-    const content = win.querySelector(".window-content");
-    content.innerHTML = "";
-
-    // Upgrades dados fixos
-    const upgrades = [
-      { level: 1, cost: 50, description: "Atualização Flat Minimalista → Frutiger Aero nível 1" },
-      { level: 2, cost: 100, description: "Frutiger Aero nível 2" },
-      { level: 3, cost: 200, description: "Frutiger Aero nível 3" },
-      { level: 4, cost: 400, description: "Frutiger Aero nível 4" },
-      { level: 5, cost: 800, description: "Frutiger Aero nível 5 - Final" }
-    ];
-
-    upgrades.forEach(upg => {
-      const div = document.createElement("div");
-      div.style.marginBottom = "10px";
-
-      const desc = document.createElement("span");
-      desc.textContent = `${upg.description} (Custo: ${upg.cost} pontos)`;
-      div.appendChild(desc);
-
-      const btn = document.createElement("button");
-      btn.textContent = "Upgrade";
-      btn.disabled = upgradeLevel >= upg.level || points < upg.cost;
-      btn.style.marginLeft = "12px";
-      btn.style.padding = "6px 14px";
-      btn.style.borderRadius = "10px";
-      btn.style.cursor = btn.disabled ? "not-allowed" : "pointer";
-      btn.style.background = btn.disabled ? "#555" : "#0080ff";
-      btn.style.color = "white";
-      btn.style.border = "none";
-
+// Aplicativos disponíveis
+const apps = {
+  earn: {
+    title: "Ganhar Pontos",
+    content: `
+      <p>Use o botão abaixo para ganhar pontos!</p>
+      <button id="earnPointsBtn">Ganhar +1 ponto</button>
+      <p id="earnPointsMsg"></p>
+    `,
+    init: () => {
+      const btn = document.getElementById("earnPointsBtn");
+      const msg = document.getElementById("earnPointsMsg");
       btn.onclick = () => {
-        if (points >= upg.cost && upgradeLevel < upg.level) {
-          updatePoints(-upg.cost);
-          upgradeLevel = upg.level;
-          notify(`Você fez o upgrade para nível ${upgradeLevel}!`);
-          clickSound.play();
-          updateVisuals();
-          // Atualiza botões da loja
-          createStoreWindow();
+        points += 1;
+        updatePoints();
+        showNotification("+1 ponto ganho!");
+        clickSound.play();
+        msg.textContent = "Você ganhou 1 ponto!";
+      };
+    }
+  },
+
+  store: {
+    title: "Loja de Upgrades",
+    content: `
+      <p>Compre upgrades com seus pontos para melhorar o sistema.</p>
+      <ul id="storeList"></ul>
+      <p id="storeMsg"></p>
+    `,
+    init: () => {
+      const storeList = document.getElementById("storeList");
+      const storeMsg = document.getElementById("storeMsg");
+
+      const upgrades = [
+        { id: "wallpaperUpgrade", name: "Melhorar Papel de Parede (+1 nível)", cost: 10, action: () => {
+          if(wallpaperLevel < 5){
+            wallpaperLevel++;
+            updateWallpaper();
+            showNotification("Papel de parede melhorado!");
+          } else {
+            storeMsg.textContent = "Você já tem o melhor papel de parede!";
+          }
+        }},
+        { id: "blurUpgrade", name: "Melhorar Desfoque nas Janelas (+1 nível)", cost: 15, action: () => {
+          if(blurLevel < 5){
+            blurLevel++;
+            updateAllWindowsBlur();
+            showNotification("Desfoque melhorado!");
+          } else {
+            storeMsg.textContent = "Desfoque já está no máximo!";
+          }
+        }},
+        { id: "pointsMultiplier", name: "Multiplicador de Pontos (+1 ponto por clique extra)", cost: 20, action: () => {
+          pointsMultiplier++;
+          showNotification("Multiplicador aumentado!");
+        }},
+      ];
+
+      storeList.innerHTML = "";
+      upgrades.forEach(upg => {
+        const li = document.createElement("li");
+        li.textContent = `${upg.name} - Custo: ${upg.cost} pontos`;
+        li.style.cursor = "pointer";
+        li.style.marginBottom = "8px";
+        li.style.padding = "6px";
+        li.style.borderRadius = "6px";
+        li.style.background = "rgba(0,123,255,0.1)";
+        li.onmouseenter = () => li.style.background = "rgba(0,123,255,0.25)";
+        li.onmouseleave = () => li.style.background = "rgba(0,123,255,0.1)";
+        li.onclick = () => {
+          if(points >= upg.cost){
+            points -= upg.cost;
+            updatePoints();
+            upg.action();
+            storeMsg.textContent = "";
+            clickSound.play();
+          } else {
+            storeMsg.textContent = "Pontos insuficientes.";
+            errorSound.play();
+          }
+        };
+        storeList.appendChild(li);
+      });
+    }
+  },
+
+  notepad: {
+    title: "Notepad",
+    content: `
+      <textarea id="notepadArea" style="width:100%; height: 300px; resize:none; font-size:14px; padding:8px; border-radius: 8px; border: 1px solid #aaa;"></textarea>
+    `,
+    init: () => {
+      // Poderia salvar no localStorage, por exemplo
+      const area = document.getElementById("notepadArea");
+      const saved = localStorage.getItem("notepadContent");
+      if(saved) area.value = saved;
+
+      area.oninput = () => {
+        localStorage.setItem("notepadContent", area.value);
+      };
+    }
+  },
+
+  winamp: {
+    title: "Winamp",
+    content: `
+      <p>Player de música simples</p>
+      <audio id="winampPlayer" controls style="width:100%;"></audio>
+      <select id="winampPlaylist" style="width:100%; margin-top:8px;">
+        <option value="">-- Selecione uma música --</option>
+        <option value="sounds/music1.mp3">Música 1</option>
+        <option value="sounds/music2.mp3">Música 2</option>
+        <option value="sounds/music3.mp3">Música 3</option>
+      </select>
+    `,
+    init: () => {
+      const player = document.getElementById("winampPlayer");
+      const playlist = document.getElementById("winampPlaylist");
+
+      playlist.onchange = () => {
+        if(playlist.value){
+          player.src = playlist.value;
+          player.play();
+          showNotification("Tocando: " + playlist.options[playlist.selectedIndex].text);
         } else {
-          errorSound.play();
-          notify("Você não tem pontos suficientes ou já possui esse upgrade.");
+          player.pause();
+          player.src = "";
         }
       };
+    }
+  },
 
-      div.appendChild(btn);
-      content.appendChild(div);
-    });
+  bet: {
+    title: "Bahze (Jogo de Dados)",
+    content: `
+      <p>Jogue os dados e ganhe pontos!</p>
+      <button id="rollDiceBtn">Lançar Dados</button>
+      <p id="diceResult"></p>
+    `,
+    init: () => {
+      const btn = document.getElementById("rollDiceBtn");
+      const result = document.getElementById("diceResult");
+      btn.onclick = () => {
+        const roll = Math.floor(Math.random() * 6) + 1;
+        if(roll >= 4){
+          points += 2;
+          updatePoints();
+          showNotification("Você ganhou 2 pontos!");
+          clickSound.play();
+          result.textContent = `Você tirou ${roll} e ganhou 2 pontos!`;
+        } else {
+          showNotification("Você não ganhou pontos desta vez.");
+          errorSound.play();
+          result.textContent = `Você tirou ${roll}, tente novamente!`;
+        }
+      };
+    }
+  },
 
-    return win;
-  }
+  calculator: {
+    title: "Calculadora",
+    content: `
+      <input type="text" id="calcDisplay" readonly style="width:100%; font-size:18px; padding:10px; border-radius: 8px; border: 1px solid #aaa; margin-bottom:10px;"/>
+      <div id="calcButtons" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+        <button class="calcBtn">7</button>
+        <button class="calcBtn">8</button>
+        <button class="calcBtn">9</button>
+        <button class="calcBtn">/</button>
+        <button class="calcBtn">4</button>
+        <button class="calcBtn">5</button>
+        <button class="calcBtn">6</button>
+        <button class="calcBtn">*</button>
+        <button class="calcBtn">1</button>
+        <button class="calcBtn">2</button>
+        <button class="calcBtn">3</button>
+        <button class="calcBtn">-</button>
+        <button class="calcBtn">0</button>
+        <button class="calcBtn">.</button>
+        <button id="calcClear" class="calcBtn">C</button>
+        <button class="calcBtn">+</button>
+        <button id="calcEqual" style="grid-column: span 4; background:#007bff; color:#fff; font-weight:bold; border:none; border-radius:6px; padding:10px; cursor:pointer;">=</button>
+      </div>
+    `,
+    init: () => {
+      const display = document.getElementById("calcDisplay");
+      const buttons = document.querySelectorAll("#calcButtons .calcBtn");
+      const clearBtn = document.getElementById("calcClear");
+      const equalBtn = document.getElementById("calcEqual");
 
-  // 3. Notepad simples
-  function createNotepadWindow() {
-    const win = createWindow("notepad", "Notepad");
-    const content = win.querySelector(".window-content");
-    content.innerHTML = "";
+      buttons.forEach(btn => {
+        btn.onclick = () => {
+          display.value += btn.textContent;
+        };
+      });
 
-    const textarea = document.createElement("textarea");
-    textarea.style.width = "100%";
-    textarea.style.height = "calc(100% - 10px)";
-    textarea.style.borderRadius = "10px";
-    textarea.style.border = "1px solid #aaa";
-    textarea.style.padding = "8px";
-    textarea.style.fontSize = "16px";
-    textarea.style.fontFamily = "monospace";
-    content.appendChild(textarea);
-
-    return win;
-  }
-
-  // 4. Winamp (simples - só a interface)
-  function createWinampWindow() {
-    const win = createWindow("winamp", "Winamp");
-    const content = win.querySelector(".window-content");
-    content.innerHTML = "<p>Player de música em desenvolvimento...</p>";
-    return win;
-  }
-
-  // 5. Bet app simples
-  function createBetWindow() {
-    const win = createWindow("bet", "Bahze - Apostas");
-    const content = win.querySelector(".window-content");
-    content.innerHTML = "";
-
-    const btnBet = document.createElement("button");
-    btnBet.textContent = "Fazer aposta (chance 50%)";
-    btnBet.style.padding = "12px 24px";
-    btnBet.style.fontSize = "18px";
-    btnBet.style.cursor = "pointer";
-    btnBet.style.borderRadius = "12px";
-    btnBet.style.border = "none";
-    btnBet.style.background = "#cc3300";
-    btnBet.style.color = "#fff";
-
-    btnBet.onclick = () => {
-      if (points < 20) {
-        errorSound.play();
-        notify("Você precisa de pelo menos 20 pontos para apostar.");
-        return;
-      }
-      updatePoints(-20);
-      const winBet = Math.random() < 0.5;
-      if (winBet) {
-        updatePoints(40);
-        notify("Você ganhou a aposta e ganhou 40 pontos!");
-      } else {
-        notify("Você perdeu a aposta. Tente novamente.");
-      }
-      clickSound.play();
-      checkUpgrade();
-    };
-
-    content.appendChild(btnBet);
-    return win;
-  }
-
-  // 6. Calculadora estilo Frutiger Aero
-  function createCalculatorWindow() {
-    const win = createWindow("calculator", "Calculadora");
-    const content = win.querySelector(".window-content");
-    content.innerHTML = "";
-
-    // Criar layout calculadora
-    const calcDiv = document.createElement("div");
-    calcDiv.classList.add("calculator");
-
-    const display = document.createElement("input");
-    display.type = "text";
-    display.id = "calcDisplay";
-    display.readOnly = true;
-    display.value = "";
-
-    calcDiv.appendChild(display);
-
-    const buttonsLayout = [
-      "7","8","9","/",
-      "4","5","6","*",
-      "1","2","3","-",
-      "0",".","C","+",
-      "="
-    ];
-
-    const buttonsContainer = document.createElement("div");
-    buttonsContainer.classList.add("calc-buttons");
-
-    buttonsLayout.forEach(btnText => {
-      const btn = document.createElement("button");
-      btn.textContent = btnText;
-      btn.dataset.val = btnText;
-      buttonsContainer.appendChild(btn);
-    });
-
-    calcDiv.appendChild(buttonsContainer);
-    content.appendChild(calcDiv);
-
-    // Eventos dos botões
-    buttonsContainer.addEventListener("click", e => {
-      if (!e.target.matches("button")) return;
-      const val = e.target.dataset.val;
-      if (!val) return;
-
-      if (val === "C") {
+      clearBtn.onclick = () => {
         display.value = "";
-      } else if (val === "=") {
+      };
+
+      equalBtn.onclick = () => {
         try {
-          // Avalia a expressão no display
-          display.value = eval(display.value) ?? "";
+          // Cálculo seguro: evitar eval inseguro
+          // Só números, operadores básicos e ponto
+          if(/^[0-9+\-*/.() ]+$/.test(display.value)){
+            // eslint-disable-next-line no-eval
+            const res = eval(display.value);
+            display.value = res;
+          } else {
+            throw new Error("Expressão inválida");
+          }
         } catch {
           display.value = "Erro";
+          errorSound.play();
         }
-      } else {
-        if (display.value === "Erro") display.value = "";
-        display.value += val;
-      }
-    });
-
-    return win;
-  }
-
-  // --------------------------
-  // Drag funcionalidade simples
-  function dragElement(elmnt, handle) {
-    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-
-    handle.onmousedown = dragMouseDown;
-
-    function dragMouseDown(e) {
-      e.preventDefault();
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-
-      document.onmouseup = closeDragElement;
-      document.onmousemove = elementDrag;
-
-      bringToFront(elmnt);
-    }
-
-    function elementDrag(e) {
-      e.preventDefault();
-      pos1 = pos3 - e.clientX;
-      pos2 = pos4 - e.clientY;
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-
-      const newTop = elmnt.offsetTop - pos2;
-      const newLeft = elmnt.offsetLeft - pos1;
-
-      // Mantém dentro da tela
-      const maxLeft = window.innerWidth - elmnt.offsetWidth;
-      const maxTop = window.innerHeight - elmnt.offsetHeight - 48; // barra tarefa
-
-      elmnt.style.top = Math.min(Math.max(0, newTop), maxTop) + "px";
-      elmnt.style.left = Math.min(Math.max(0, newLeft), maxLeft) + "px";
-    }
-
-    function closeDragElement() {
-      document.onmouseup = null;
-      document.onmousemove = null;
+      };
     }
   }
+};
 
-  // Verifica se pode fazer upgrade automaticamente para desbloquear botões sem precisar fechar janela
-  function checkUpgrade() {
-    const storeWin = windows["store"];
-    if (!storeWin) return;
+// Multiplicador de pontos por clique
+let pointsMultiplier = 1;
 
-    const buttons = storeWin.querySelectorAll("button");
-    buttons.forEach(btn => {
-      const text = btn.textContent.toLowerCase();
-      if (!text.includes("upgrade")) return;
+// Atualizar pontos na interface
+function updatePoints(){
+  pointsLabel.textContent = points;
+}
 
-      const div = btn.parentElement;
-      // tenta pegar o custo do texto
-      const costMatch = div.textContent.match(/Custo: (\d+)/);
-      if (!costMatch) return;
-      const cost = parseInt(costMatch[1], 10);
+// Atualizar papel de parede
+function updateWallpaper(){
+  wallpaper.className = ""; // reset classes
+  wallpaper.classList.add(`wallpaper-level-${wallpaperLevel}`);
+}
 
-      // qual o level deste upgrade?
-      const levelMatch = div.textContent.match(/nível (\d)/i);
-      if (!levelMatch) return;
-      const level = parseInt(levelMatch[1], 10);
-
-      if (points >= cost && upgradeLevel < level) {
-        btn.disabled = false;
-        btn.style.cursor = "pointer";
-        btn.style.background = "#0080ff";
-      } else {
-        btn.disabled = upgradeLevel >= level || points < cost;
-        btn.style.cursor = btn.disabled ? "not-allowed" : "pointer";
-        btn.style.background = btn.disabled ? "#555" : "#0080ff";
-      }
-    });
-  }
-
-  // Inicialização Boot Screen simulada
-  let bootProgress = 0;
-  const bootBarProgress = document.querySelector("#bootBar .progress");
-
-  function bootStep() {
-    bootProgress += 2;
-    bootBarProgress.style.width = bootProgress + "%";
-
-    if (bootProgress >= 100) {
-      bootScreen.style.display = "none";
-      desktop.classList.remove("hidden");
-      bootSound.play();
-      // Cria janelas iniciais
-      createEarnWindow();
-      createStoreWindow();
-      updatePoints(0);
-    } else {
-      setTimeout(bootStep, 40);
-    }
-  }
-
-  bootStep();
-
-  // Abrir apps ao clicar na barra de tarefas
-  taskbarApps.addEventListener("click", (e) => {
-    if (!e.target.classList.contains("appIcon")) return;
-    const appId = e.target.dataset.app;
-    if (!appId) return;
-
-    if (appCreators[appId]) {
-      appCreators[appId]();
-      clickSound.play();
-    }
+// Atualizar blur de todas janelas abertas
+function updateAllWindowsBlur(){
+  windows.forEach(win => {
+    win.element.classList.remove(...[...win.element.classList].filter(c => c.startsWith("blur-level-")));
+    win.element.classList.add(`blur-level-${blurLevel}`);
   });
+}
 
-  // Atualizar estado dos upgrades em tempo real
-  setInterval(checkUpgrade, 500);
+// Criar janela
+function createWindow(appKey){
+  if(!apps[appKey]) return;
 
+  // Som clique
+  clickSound.play();
+
+  // Criar elemento da janela
+  const win = document.createElement("div");
+  win.classList.add("window", `blur-level-${blurLevel}`);
+  win.style.top = "80px";
+  win.style.left = "80px";
+  win.style.width = "400px";
+  win.style.height = "300px";
+  win.style.zIndex = zIndexCounter++;
+
+  // Conteúdo da janela
+  win.innerHTML = `
+    <div class="window-header" tabindex="0">
+      <span class="window-title">${apps[appKey].title}</span>
+      <div>
+        <button class="btn-minimize" aria-label="Minimizar janela" title="Minimizar">—</button>
+        <button class="btn-maximize" aria-label="Maximizar janela" title="Maximizar">⬜</button>
+        <button class="btn-close" aria-label="Fechar janela" title="Fechar">×</button>
+      </div>
+    </div>
+    <div class="window-body">${apps[appKey].content}</div>
+    <div class="resizer"></div>
+  `;
+
+  windowsContainer.appendChild(win);
+
+  // Inicializar app específico
+  apps[appKey].init();
+
+  // Adicionar à lista de janelas
+  windows.push({element: win, appKey: appKey});
+
+  // Focar janela ao clicar
+  win.addEventListener("mousedown", () => focusWindow(win));
+
+  // Drag da janela
+  const header = win.querySelector(".window-header");
+  header.style.cursor = "grab";
+
+  header.addEventListener("mousedown", dragMouseDown);
+
+  // Botões minimizar, maximizar e fechar
+  const btnMin = win.querySelector(".btn-minimize");
+  const btnMax = win.querySelector(".btn-maximize");
+  const btnClose = win.querySelector(".btn-close");
+
+  btnMin.onclick = (e) => {
+    e.stopPropagation();
+    win.style.display = "none";
+  };
+
+  btnMax.onclick = (e) => {
+    e.stopPropagation();
+    toggleMaximize(win);
+  };
+
+  btnClose.onclick = (e) => {
+    e.stopPropagation();
+    closeWindow(win);
+  };
+
+  // Resizer
+  const resizer = win.querySelector(".resizer");
+  resizer.addEventListener("mousedown", resizeMouseDown);
+
+  // Focar ao abrir
+  focusWindow(win);
+}
+
+// Focar janela e mandar pro topo
+function focusWindow(win){
+  if(activeWindow === win) return;
+  activeWindow = win;
+  windows.forEach(w => {
+    w.element.style.zIndex = (w.element === win) ? zIndexCounter++ : 10;
+  });
+}
+
+// Fechar janela
+function closeWindow(win){
+  windows = windows.filter(w => w.element !== win);
+  win.remove();
+  clickSound.play();
+  activeWindow = null;
+}
+
+// Maximizar/restaurar janela
+function toggleMaximize(win){
+  if(win.classList.contains("maximized")){
+    // Restaurar
+    win.classList.remove("maximized");
+    // Restaurar posição e tamanho anterior se salvo
+    if(win.dataset.prevPos){
+      const prev = JSON.parse(win.dataset.prevPos);
+      win.style.top = prev.top;
+      win.style.left = prev.left;
+      win.style.width = prev.width;
+      win.style.height = prev.height;
+    }
+  } else {
+    // Salvar posição e tamanho atual
+    win.dataset.prevPos = JSON.stringify({
+      top: win.style.top,
+      left: win.style.left,
+      width: win.style.width,
+      height: win.style.height,
+    });
+    // Maximizar
+    win.classList.add("maximized");
+    win.style.top = "0";
+    win.style.left = "0";
+    win.style.width = "100%";
+    win.style.height = `calc(100% - 44px)`; // barra de tarefas
+  }
+}
+
+// Drag janela
+let dragData = null;
+function dragMouseDown(e){
+  e.preventDefault();
+  const win = e.target.closest(".window");
+  focusWindow(win);
+  dragData = {
+    win,
+    startX: e.clientX,
+    startY: e.clientY,
+    startTop: parseInt(win.style.top),
+    startLeft: parseInt(win.style.left),
+  };
+  document.addEventListener("mousemove", dragMouseMove);
+  document.addEventListener("mouseup", dragMouseUp);
+}
+function dragMouseMove(e){
+  if(!dragData) return;
+  let newTop = dragData.startTop + (e.clientY - dragData.startY);
+  let newLeft = dragData.startLeft + (e.clientX - dragData.startX);
+
+  // Restringir para dentro da viewport
+  newTop = Math.min(window.innerHeight - 100, Math.max(0, newTop));
+  newLeft = Math.min(window.innerWidth - 100, Math.max(0, newLeft));
+
+  dragData.win.style.top = newTop + "px";
+  dragData.win.style.left = newLeft + "px";
+}
+function dragMouseUp(){
+  dragData = null;
+  document.removeEventListener("mousemove", dragMouseMove);
+  document.removeEventListener("mouseup", dragMouseUp);
+}
+
+// Resize janela
+let resizeData = null;
+function resizeMouseDown(e){
+  e.preventDefault();
+  const win = e.target.closest(".window");
+  focusWindow(win);
+  resizeData = {
+    win,
+    startX: e.clientX,
+    startY: e.clientY,
+    startWidth: parseInt(window.getComputedStyle(win).width),
+    startHeight: parseInt(window.getComputedStyle(win).height),
+  };
+  document.addEventListener("mousemove", resizeMouseMove);
+  document.addEventListener("mouseup", resizeMouseUp);
+}
+function resizeMouseMove(e){
+  if(!resizeData) return;
+  let newWidth = resizeData.startWidth + (e.clientX - resizeData.startX);
+  let newHeight = resizeData.startHeight + (e.clientY - resizeData.startY);
+
+  newWidth = Math.max(280, Math.min(window.innerWidth - resizeData.win.offsetLeft, newWidth));
+  newHeight = Math.max(180, Math.min(window.innerHeight - resizeData.win.offsetTop - 44, newHeight)); // - barra de tarefas
+
+  resizeData.win.style.width = newWidth + "px";
+  resizeData.win.style.height = newHeight + "px";
+}
+function resizeMouseUp(){
+  resizeData = null;
+  document.removeEventListener("mousemove", resizeMouseMove);
+  document.removeEventListener("mouseup", resizeMouseUp);
+}
+
+// Mostrar notificações
+function showNotification(text, duration=3500){
+  const note = document.createElement("div");
+  note.className = "notification";
+  note.textContent = text;
+  notifications.appendChild(note);
+  notifySound.play();
+
+  setTimeout(() => {
+    note.style.opacity = 0;
+    setTimeout(() => note.remove(), 500);
+  }, duration);
+}
+
+// Atualizar relógio
+function updateClock(){
+  const now = new Date();
+  const h = now.getHours().toString().padStart(2,"0");
+  const m = now.getMinutes().toString().padStart(2,"0");
+  const s = now.getSeconds().toString().padStart(2,"0");
+  clockLabel.textContent = `${h}:${m}:${s}`;
+}
+
+// Inicializar boot screen (animação de inicialização)
+function boot(){
+  bootSound.play();
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += 1 + Math.random()*3;
+    if(progress >= 100){
+      progress = 100;
+      clearInterval(interval);
+      bootScreen.classList.add("hidden");
+      desktop.classList.remove("hidden");
+      showNotification("Bem-vindo ao UpgradOS!");
+    }
+    bootProgress.style.width = progress + "%";
+  }, 60);
+}
+
+// Abrir app da barra
+function openApp(appKey){
+  // Verifica se já está aberta
+  const exists = windows.find(w => w.appKey === appKey);
+  if(exists){
+    exists.element.style.display = "flex";
+    focusWindow(exists.element);
+  } else {
+    createWindow(appKey);
+  }
+}
+
+// Eventos botão iniciar (toggle menu iniciar)
+startButton.addEventListener("click", () => {
+  const shown = !startMenu.classList.contains("hidden");
+  if(shown){
+    startMenu.classList.add("hidden");
+  } else {
+    startMenu.classList.remove("hidden");
+  }
 });
+
+// Eventos ícones barra
+document.querySelectorAll(".appIcon").forEach(btn => {
+  btn.addEventListener("click", () => {
+    openApp(btn.dataset.app);
+  });
+});
+
+// Inicialização
+updatePoints();
+updateWallpaper();
+updateAllWindowsBlur();
+updateClock();
+setInterval(updateClock, 1000);
+boot();
+
