@@ -22,7 +22,7 @@ const musicFiles = [
 ];
 const musicNames = ["Música 1", "Música 2", "Música 3"];
 
-// Inicia som só após interação
+// Inicializa som após interação do usuário
 window.addEventListener("click", () => {
   if (!firstInteraction) {
     firstInteraction = true;
@@ -30,7 +30,7 @@ window.addEventListener("click", () => {
   }
 });
 
-// Esconde boot após tempo
+// Esconde tela de boot após carregamento
 window.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
     document.getElementById("bootScreen").style.display = "none";
@@ -40,7 +40,7 @@ window.addEventListener("DOMContentLoaded", () => {
   }, 3100);
 });
 
-// Toca sons
+// Função para tocar sons
 function playSound(type) {
   try {
     if (type === "click") clickSound.play();
@@ -50,22 +50,70 @@ function playSound(type) {
   } catch (e) {}
 }
 
-// Salva progresso
+// Salva progresso no localStorage
 function saveGame() {
   localStorage.setItem("points", points);
   localStorage.setItem("upgrades", JSON.stringify(upgrades));
 }
 
-// Relógio
+// Atualiza relógio digital
 function updateClock() {
   const clock = document.getElementById("clock");
   setInterval(() => {
     const now = new Date();
-    clock.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    clock.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }, 1000);
 }
 
-// UI
+// Atualiza cursor conforme contexto e upgrade
+function updateCursorContext(context) {
+  document.body.classList.remove("custom-cursor-default", "custom-cursor-grab", "custom-cursor-pointer");
+
+  if (getUpgradeLevel("cursor") === 0) return;
+
+  if (context === "grab") {
+    document.body.classList.add("custom-cursor-grab");
+  } else if (context === "pointer") {
+    document.body.classList.add("custom-cursor-pointer");
+  } else {
+    document.body.classList.add("custom-cursor-default");
+  }
+}
+
+// Torna janela arrastável com cursor dinâmico
+function makeDraggable(win, header) {
+  let dragging = false, offsetX, offsetY;
+
+  header.style.cursor = "grab";
+
+  header.addEventListener("mousedown", e => {
+    dragging = true;
+    offsetX = e.clientX - win.offsetLeft;
+    offsetY = e.clientY - win.offsetTop;
+    updateCursorContext("grab");
+  });
+
+  document.addEventListener("mouseup", () => {
+    if (dragging) {
+      dragging = false;
+      updateCursorContext("default");
+    }
+  });
+
+  document.addEventListener("mousemove", e => {
+    if (!dragging) return;
+    win.style.left = `${e.clientX - offsetX}px`;
+    win.style.top = `${e.clientY - offsetY}px`;
+  });
+
+  // Cursor dedinho para os botões dentro da janela
+  win.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("mouseenter", () => updateCursorContext("pointer"));
+    btn.addEventListener("mouseleave", () => updateCursorContext("default"));
+  });
+}
+
+// Atualiza o UI geral (pontos, upgrades visuais, barra)
 function updateUI() {
   pointsDisplay.textContent = points;
   updateVisualUpgrades();
@@ -73,11 +121,13 @@ function updateUI() {
   updateUpgradesButtons();
 }
 
-// Aplicar upgrades visuais
+// Aplica upgrades visuais em tempo real
 function updateVisualUpgrades() {
   const wallLevel = getUpgradeLevel("wallpaper");
   if (wallLevel >= 1) {
     wallpaper.style.backgroundImage = `url('https://wallpapercave.com/wp/wp2708044.jpg')`;
+  } else {
+    wallpaper.style.backgroundImage = "";
   }
 
   const blurLevel = getUpgradeLevel("blur");
@@ -89,9 +139,9 @@ function updateVisualUpgrades() {
 
   const cursorLevel = getUpgradeLevel("cursor");
   if (cursorLevel >= 1) {
-    document.body.classList.add("custom-cursor");
+    updateCursorContext("default");
   } else {
-    document.body.classList.remove("custom-cursor");
+    document.body.classList.remove("custom-cursor-default", "custom-cursor-grab", "custom-cursor-pointer");
   }
 }
 
@@ -110,9 +160,7 @@ const appsData = {
   store: {
     title: "Loja de Upgrades",
     icon: "🛒",
-    content: `
-      <div class="store-list"></div>
-    `
+    content: `<div class="store-list"></div>`
   },
   notepad: {
     title: "Notepad",
@@ -134,7 +182,7 @@ const appsData = {
   }
 };
 
-// Upgrades disponíveis
+// Upgrades disponíveis com máximo de 5 níveis
 const allUpgrades = {
   wallpaper: { max: 5, label: "🖼 Papel de Parede" },
   blur: { max: 5, label: "🌫 Blur nas Janelas" },
@@ -142,7 +190,7 @@ const allUpgrades = {
   player: { max: 5, label: "🎧 Upgrade do Player" }
 };
 
-// Abrir apps fixos
+// Abrir apps fixos ao clicar na barra de tarefas
 taskbarApps.querySelectorAll(".appIcon").forEach(btn => {
   btn.onclick = () => {
     openApp(btn.dataset.app);
@@ -150,7 +198,7 @@ taskbarApps.querySelectorAll(".appIcon").forEach(btn => {
   };
 });
 
-// Abrir App
+// Abre app e cria janela, com todos handlers
 const openWindows = {};
 let zIndexCounter = 100;
 
@@ -168,7 +216,7 @@ function openApp(key) {
   win.style.left = "100px";
   win.style.zIndex = ++zIndexCounter;
 
-  // Header
+  // Cabeçalho com botões
   const header = document.createElement("div");
   header.className = "window-header";
   header.innerHTML = `
@@ -180,7 +228,7 @@ function openApp(key) {
     </div>`;
   win.appendChild(header);
 
-  // Body
+  // Corpo
   const body = document.createElement("div");
   body.className = "window-body";
   body.innerHTML = app.content;
@@ -189,24 +237,28 @@ function openApp(key) {
   openWindows[key] = win;
   updateUI();
 
-  // Botões janela
+  // Fechar janela
   header.querySelector(".closeBtn").onclick = () => {
     win.remove();
     delete openWindows[key];
     updateTaskbarIcons();
   };
 
+  // Minimizar janela
   header.querySelector(".minimizeBtn").onclick = () => {
     win.style.display = "none";
   };
 
+  // Maximizar/restaurar
   header.querySelector(".maximizeBtn").onclick = () => {
     win.classList.toggle("maximized");
   };
 
+  // Tornar arrastável com cursor dinâmico
   makeDraggable(win, header);
   focusWindow(win);
 
+  // Apps específicos
   if (key === "earn") {
     body.querySelector("#earnPointsBtn").onclick = () => {
       points++;
@@ -218,32 +270,7 @@ function openApp(key) {
   }
 
   if (key === "store") {
-    const storeList = body.querySelector(".store-list");
-    storeList.innerHTML = "";
-    Object.keys(allUpgrades).forEach(k => {
-      const level = getUpgradeLevel(k);
-      const max = allUpgrades[k].max;
-      const nextLevel = level + 1;
-      const cost = nextLevel * 10;
-      const btn = document.createElement("button");
-      btn.className = "upgrade";
-      btn.textContent = `${allUpgrades[k].label} (Nível ${level}/${max}) - ${cost} pts`;
-      btn.disabled = level >= max || points < cost;
-      btn.onclick = () => {
-        if (points >= cost && level < max) {
-          upgrades[k] = nextLevel;
-          points -= cost;
-          saveGame();
-          updateUI();
-          playSound("notify");
-          notify(`${allUpgrades[k].label} melhorado para nível ${nextLevel}!`);
-          openApp("store"); // recarrega loja
-        } else {
-          playSound("error");
-        }
-      };
-      storeList.appendChild(btn);
-    });
+    updateStoreUI(body);
   }
 
   if (key === "winamp") {
@@ -251,29 +278,13 @@ function openApp(key) {
   }
 }
 
-// Foco na janela
+// Dar foco na janela
 function focusWindow(win) {
   zIndexCounter++;
   win.style.zIndex = zIndexCounter;
 }
 
-// Arrastar janela
-function makeDraggable(win, header) {
-  let dragging = false, offsetX, offsetY;
-  header.onmousedown = e => {
-    dragging = true;
-    offsetX = e.clientX - win.offsetLeft;
-    offsetY = e.clientY - win.offsetTop;
-  };
-  document.onmouseup = () => dragging = false;
-  document.onmousemove = e => {
-    if (!dragging) return;
-    win.style.left = `${e.clientX - offsetX}px`;
-    win.style.top = `${e.clientY - offsetY}px`;
-  };
-}
-
-// Barra: ativa/desativa ícones
+// Atualizar ícones ativos na barra de tarefas
 function updateTaskbarIcons() {
   taskbarApps.querySelectorAll(".appIcon").forEach(icon => {
     if (openWindows[icon.dataset.app]) {
@@ -284,7 +295,7 @@ function updateTaskbarIcons() {
   });
 }
 
-// Botões upgrades
+// Atualiza botões de upgrade (desabilita/abilita)
 function updateUpgradesButtons() {
   document.querySelectorAll(".upgrade").forEach(btn => {
     if (btn.disabled) btn.classList.add("disabled");
@@ -292,7 +303,42 @@ function updateUpgradesButtons() {
   });
 }
 
-// Notificações
+// Atualiza a UI da loja em tempo real sem fechar
+function updateStoreUI(body) {
+  const storeList = body.querySelector(".store-list");
+  if (!storeList) return;
+
+  storeList.innerHTML = "";
+  Object.keys(allUpgrades).forEach(k => {
+    const level = getUpgradeLevel(k);
+    const max = allUpgrades[k].max;
+    const nextLevel = level + 1;
+    const cost = nextLevel * 10;
+
+    const btn = document.createElement("button");
+    btn.className = "upgrade";
+    btn.textContent = `${allUpgrades[k].label} (Nível ${level}/${max}) - ${cost} pts`;
+    btn.disabled = level >= max || points < cost;
+
+    btn.onclick = () => {
+      if (points >= cost && level < max) {
+        upgrades[k] = nextLevel;
+        points -= cost;
+        saveGame();
+        updateUI();
+        playSound("notify");
+        notify(`${allUpgrades[k].label} melhorado para nível ${nextLevel}!`);
+        updateStoreUI(body); // Atualiza loja instantaneamente
+      } else {
+        playSound("error");
+      }
+    };
+
+    storeList.appendChild(btn);
+  });
+}
+
+// Notificações simples
 function notify(msg) {
   const box = document.createElement("div");
   box.className = "notification";
