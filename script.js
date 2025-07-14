@@ -29,21 +29,34 @@ const upgradeCosts = {
   player:    [0, 10, 25, 50, 75, 120],
 };
 
-/** Aplicativos e seus conteúdos (exemplo básico) */
+/** Aplicativos e seus conteúdos */
 const appsContent = {
   winamp: `<div class="winamp-window">
     <h3>Winamp Player</h3>
     <audio controls>
-      <source src="music/sample.mp3" type="audio/mpeg" />
+      <source src="music/song1.mp3" type="audio/mpeg" />
+      <source src="music/song2.mp3" type="audio/mpeg" />
+      <source src="music/song3.mp3" type="audio/mpeg" />
       Seu navegador não suporta áudio.
     </audio>
+    <div class="playlist">
+      <button data-song="song1.mp3">Tocar Música 1</button>
+      <button data-song="song2.mp3">Tocar Música 2</button>
+      <button data-song="song3.mp3">Tocar Música 3</button>
+    </div>
   </div>`,
   notepad: `<div><h3>Notepad</h3><textarea rows="10" cols="30" placeholder="Escreva aqui..."></textarea></div>`,
-  earn: `<div><h3>Ganhar Pontos</h3><button id="earnPointsBtn">Ganhar 5 pontos</button></div>`,
+  earn: `<div><h3>Ganhar Pontos</h3><button id="earnPointsBtn">Ganhar 1 ponto</button></div>`,
   store: `<div><h3>Loja</h3><p>Use os pontos para comprar upgrades.</p><div id="storeList"></div></div>`,
   bet: `<div><h3>Bahze</h3><p>Jogo de apostas (em breve)</p></div>`,
-  calculator: `<div><h3>Calculadora</h3><input type="text" placeholder="0" disabled id="calcDisplay"><br>
-    <button id="calcClear">C</button> <button id="calcAdd">+</button> <button id="calcEquals">=</button>
+  calculator: `<div><h3>Calculadora</h3>
+    <input type="text" placeholder="0" disabled id="calcDisplay">
+    <div class="calc-buttons">
+      <button>7</button><button>8</button><button>9</button><button>+</button>
+      <button>4</button><button>5</button><button>6</button><button>-</button>
+      <button>1</button><button>2</button><button>3</button><button>*</button>
+      <button>C</button><button>0</button><button>=</button><button>/</button>
+    </div>
   </div>`,
 };
 
@@ -63,8 +76,20 @@ function openApp(appKey) {
   win.style.height = '220px';
   win.style.zIndex = 10 + windows.length;
 
-  // Conteúdo da janela
-  win.innerHTML = appsContent[appKey] || `<p>App ${appKey} não encontrado.</p>`;
+  // Conteúdo da janela com controles
+  win.innerHTML = `
+    <div class="window-header">
+      <span class="window-title">${appKey}</span>
+      <div class="window-controls">
+        <button class="window-minimize">−</button>
+        <button class="window-maximize">□</button>
+        <button class="window-close">×</button>
+      </div>
+    </div>
+    <div class="window-content">
+      ${appsContent[appKey] || `<p>App ${appKey} não encontrado.</p>`}
+    </div>
+  `;
 
   // Se app for winamp, adicionar classe visual nível player
   if (appKey === 'winamp') {
@@ -79,14 +104,47 @@ function openApp(appKey) {
   if(appKey === 'earn'){
     const earnBtn = win.querySelector('#earnPointsBtn');
     earnBtn.onclick = () => {
-      points += 5 * (upgradesState.player + 1); // bônus player
+      points += 1 * (upgradesState.player + 1); // 1 ponto com bônus
       updatePoints();
-      showNotification(`Você ganhou 5 pontos!`);
+      showNotification(`Você ganhou 1 ponto!`);
       clickSound.play();
     }
   }
 
-  // Implementar drag simples (opcional)
+  if(appKey === 'calculator'){
+    const display = win.querySelector('#calcDisplay');
+    const buttons = win.querySelectorAll('.calc-buttons button');
+    
+    buttons.forEach(button => {
+      button.onclick = () => {
+        const value = button.textContent;
+        if(value === 'C') {
+          display.value = '';
+        } else if(value === '=') {
+          try {
+            display.value = eval(display.value);
+            points += 1; // Ganha 1 ponto por cálculo
+            updatePoints();
+          } catch {
+            display.value = 'Erro';
+          }
+        } else {
+          display.value += value;
+        }
+        clickSound.play();
+      };
+    });
+  }
+
+  // Eventos dos controles da janela
+  win.querySelector('.window-close').onclick = () => closeApp(appKey);
+  win.querySelector('.window-minimize').onclick = () => win.style.display = 'none';
+  win.querySelector('.window-maximize').onclick = () => {
+    win.style.width = win.style.width === '90vw' ? '300px' : '90vw';
+    win.style.height = win.style.height === '80vh' ? '220px' : '80vh';
+  };
+
+  // Implementar drag simples
   makeDraggable(win);
 
   showNotification(`Aplicativo ${appKey} aberto.`);
@@ -123,22 +181,6 @@ function updateWallpaper(){
     wallpaper.classList.remove(`wallpaper-level-${i}`);
   }
   wallpaper.classList.add(`wallpaper-level-${upgradesState.wallpaper}`);
-
-  // Ativa/desativa efeito interativo nível 5
-  if(upgradesState.wallpaper === 5){
-    wallpaper.style.backgroundPosition = 'center';
-    wallpaper.addEventListener('mousemove', wallpaperMouseMove);
-  } else {
-    wallpaper.style.backgroundPosition = 'center';
-    wallpaper.removeEventListener('mousemove', wallpaperMouseMove);
-  }
-}
-
-/** Função para efeito interativo wallpaper nível 5 */
-function wallpaperMouseMove(e){
-  const x = e.clientX / window.innerWidth - 0.5;
-  const y = e.clientY / window.innerHeight - 0.5;
-  wallpaper.style.backgroundPosition = `${50 + x * 10}% ${50 + y * 10}%`;
 }
 
 /** Atualiza todas as janelas com o blur correto */
@@ -153,10 +195,12 @@ function updateAllWindowsBlur(){
 
 /** Atualiza cursor */
 function updateCursor(){
+  // Remove todos os estilos de cursor personalizado
   for(let i=0; i<=5; i++){
     document.body.classList.remove(`cursor-level-${i}`);
   }
-  document.body.classList.add(`cursor-level-${upgradesState.cursor}`);
+  // Mantém apenas o cursor padrão
+  document.body.style.cursor = 'default';
 }
 
 /** Atualiza player */
@@ -218,14 +262,6 @@ function renderStore(){
       ? `${upg.name} (Nível ${currentLevel}) → Nível ${nextLevel} - Custo: ${cost} pontos`
       : `${upg.name} (Nível ${currentLevel}) - Máximo nível atingido`;
     btn.disabled = !cost || points < cost;
-    btn.style.marginBottom = "8px";
-    btn.style.padding = "10px";
-    btn.style.width = "100%";
-    btn.style.borderRadius = "8px";
-    btn.style.border = "none";
-    btn.style.cursor = btn.disabled ? "not-allowed" : "pointer";
-    btn.style.backgroundColor = btn.disabled ? "#555" : "#007bff";
-    btn.style.color = btn.disabled ? "#aaa" : "#fff";
     btn.onclick = () => {
       tryUpgrade(upg.id);
       renderStore();
@@ -241,6 +277,7 @@ function makeDraggable(el) {
   let offsetX, offsetY;
 
   el.addEventListener('mousedown', e => {
+    if(e.target.closest('.window-controls')) return; // Não arrastar pelos controles
     isDragging = true;
     offsetX = e.clientX - el.offsetLeft;
     offsetY = e.clientY - el.offsetTop;
@@ -301,8 +338,8 @@ function init() {
 
   // Eventos da taskbar
   document.getElementById('taskbarApps').addEventListener('click', e => {
-    if(e.target.matches('button.appIcon')){
-      const appKey = e.target.dataset.app;
+    if(e.target.closest('button.appIcon')){
+      const appKey = e.target.closest('button').dataset.app;
       if(appKey === 'store'){
         store.classList.toggle('hidden');
         if(!store.classList.contains('hidden')) renderStore();
