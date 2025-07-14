@@ -1,334 +1,328 @@
-/* Reset */
+/* Reset básico */
 * {
   box-sizing: border-box;
-  user-select: none;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Wallpaper levels */
-.wallpaper-level-0 {
-  background: #111111;
-}
-.wallpaper-level-1 {
-  background: linear-gradient(135deg, #85d8ce, #2b87a3);
-}
-.wallpaper-level-2 {
-  background: url('images/wallpaper2.jpg') no-repeat center/cover;
-  filter: brightness(0.9);
-}
-.wallpaper-level-3 {
-  background: url('images/wallpaper3.png') no-repeat center/cover;
-  filter: brightness(0.8) saturate(1.2);
-}
-.wallpaper-level-4 {
-  background: url('images/wallpaper4.png') no-repeat center/cover;
-  filter: brightness(1) saturate(1.5) drop-shadow(0 0 5px rgba(255,255,255,0.3));
-}
-.wallpaper-level-5 {
-  background: url('images/wallpaper5.png') no-repeat center/cover;
-  filter: brightness(1.2) saturate(1.7) drop-shadow(0 0 10px rgba(0,255,255,0.6));
-  animation: subtleGlow 8s infinite alternate;
-}
-
-/* Glow animation */
-@keyframes subtleGlow {
-  from {
-    filter: brightness(1.2) saturate(1.7) drop-shadow(0 0 10px rgba(0,255,255,0.6));
-  }
-  to {
-    filter: brightness(1.4) saturate(2) drop-shadow(0 0 15px rgba(0,255,255,0.8));
-  }
-}
-
-/* Janela (sem blur no conteúdo, só no fundo) */
-.window {
-  position: absolute;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  color: #222;
-  min-width: 280px;
-  min-height: 180px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  /* Aqui não colocamos backdrop-filter, vamos aplicar blur no fundo com um pseudo-elemento */
-  transition: box-shadow 0.3s ease;
-}
-
-/* Blur aplicado só no fundo da janela usando pseudo-elemento */
-.window::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  z-index: 0;
-  filter: none;
-  background: rgba(255, 255, 255, 0.25);
-  transition: filter 0.3s ease;
-  pointer-events: none;
-}
-
-/* Blur levels (só no fundo) */
-.blur-level-0::before {
-  filter: none;
-  background: rgba(255,255,255,0.25);
-}
-.blur-level-1::before {
-  filter: blur(5px);
-  background: rgba(255,255,255,0.2);
-}
-.blur-level-2::before {
-  filter: blur(10px);
-  background: rgba(255,255,255,0.15);
-}
-.blur-level-3::before {
-  filter: blur(15px);
-  background: rgba(255,255,255,0.12);
-}
-.blur-level-4::before {
-  filter: blur(20px);
-  background: rgba(255,255,255,0.1);
-}
-.blur-level-5::before {
-  filter: blur(25px);
-  background: rgba(255,255,255,0.08);
-  box-shadow:
-    0 8px 24px rgba(0, 170, 255, 0.35),
-    inset 0 0 15px rgba(0, 170, 255, 0.4);
-}
-
-/* Para conteúdo da janela ficar acima do blur */
-.window > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* Janela maximizada */
-.window.maximized {
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  border-radius: 0 !important;
-}
-
-/* Header da janela */
-.window-header {
-  background: rgba(0, 123, 255, 0.8);
-  color: white;
-  font-weight: 600;
-  padding: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  user-select: none;
-  cursor: grab;
-  box-shadow: inset 0 -1px 0 rgba(255,255,255,0.3);
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  z-index: 2;
-}
-
-/* Botões da janela */
-.window-header button {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 16px;
-  margin-left: 8px;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-.window-header button:hover {
-  color: #ffd700;
-}
-
-/* Corpo da janela */
-.window-body {
-  padding: 15px;
-  flex-grow: 1;
-  overflow-y: auto;
-  color: #111;
-  position: relative;
-  z-index: 1;
-}
-
-/* Resizer (canto inferior direito) */
-.resizer {
-  width: 16px;
-  height: 16px;
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  cursor: se-resize;
-  background: transparent;
-  z-index: 3;
-}
-
-/* Barra de tarefas */
-#taskbar {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  height: 44px;
-  background: linear-gradient(90deg, #007bff, #004a99);
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  color: white;
-  user-select: none;
-  z-index: 1000;
-  box-shadow: 0 -3px 6px rgba(0,0,0,0.4);
-}
-
-/* Botão iniciar */
-#startButton {
-  background: transparent;
-  border: none;
-  margin-right: 12px;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Ícones dos apps na barra */
-#taskbarApps {
-  display: flex;
-  gap: 10px;
-  flex-grow: 1;
-}
-
-/* Ícones */
-.appIcon {
-  background: rgba(255,255,255,0.15);
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.3);
-  width: 32px;
-  height: 32px;
-  font-size: 20px;
-  line-height: 32px;
-  text-align: center;
-  color: white;
-  cursor: pointer;
-  user-select: none;
-  transition: background-color 0.2s ease;
-}
-.appIcon:hover, .appIcon:focus {
-  background: rgba(255,255,255,0.3);
-  outline: none;
-}
-
-/* Lado direito da barra */
-#taskbarRight {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-/* Relógio */
-#clock {
-  min-width: 65px;
-  text-align: right;
-}
-
-/* Papel de parede */
-#wallpaper {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 44px; /* barra no fim */
-  z-index: -1;
-  background-size: cover;
-  background-position: center;
-  transition: background 1s ease, filter 0.5s ease;
-}
-
-/* Boot screen */
+/* --- Tela de boot --- */
 #bootScreen {
-  position: fixed;
-  inset: 0;
-  background: #111;
-  color: white;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 2000;
+  height: 100vh;
+  background: #111;
+  color: #0af;
+  font-weight: 700;
+  font-size: 1.5rem;
   user-select: none;
 }
 #bootBar {
   margin-top: 20px;
-  width: 300px;
+  width: 60%;
   height: 20px;
-  border: 2px solid #444;
-  border-radius: 10px;
+  background: #222;
+  border-radius: 12px;
   overflow: hidden;
 }
-#bootBar .progress {
+.progress {
+  width: 0;
   height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #00aaff, #004466);
-  transition: width 0.3s ease;
+  background: #0af;
+  transition: width 0.4s ease;
 }
 
-/* Oculto */
-.hidden {
-  display: none !important;
+/* --- Desktop --- */
+#desktop {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 
-/* Notificações */
+/* --- Papel de parede --- */
+#wallpaper {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transition: background 0.8s ease, filter 0.8s ease;
+}
+
+/* --- Classes de níveis de Papel de Parede --- */
+.wallpaper-level-0 {
+  background: #000;
+  background-size: auto;
+  background-position: center;
+  filter: none;
+  animation: none;
+}
+.wallpaper-level-1 {
+  background: linear-gradient(135deg, #6fb1fc, #4364f7);
+}
+.wallpaper-level-2 {
+  background: url('images/wallpaper2.jpg') no-repeat center center / cover;
+  opacity: 0.85;
+  filter: saturate(1.2);
+}
+.wallpaper-level-3 {
+  background: url('images/wallpaper3.png') no-repeat center center / cover;
+  opacity: 0.9;
+  backdrop-filter: brightness(0.85) saturate(1.5);
+  position: relative;
+}
+.wallpaper-level-4 {
+  background: linear-gradient(120deg, #4a90e2 0%, #6fb1fc 50%, #4a90e2 100%);
+  animation: wallpaperShimmer 8s infinite;
+  filter: brightness(1.1);
+}
+.wallpaper-level-5 {
+  background: url('images/wallpaper5.png') no-repeat center center / cover;
+  filter: drop-shadow(0 0 10px rgba(100,150,255,0.7));
+  animation: wallpaperInteractive 15s infinite;
+  cursor: url('images/cursor-aero.png'), auto;
+}
+
+/* Animações do wallpaper */
+@keyframes wallpaperShimmer {
+  0%, 100% { background-position: left center; }
+  50% { background-position: right center; }
+}
+@keyframes wallpaperInteractive {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(100,150,255,0.7)); }
+  50% { filter: drop-shadow(0 0 20px rgba(80,180,255,0.9)); }
+}
+
+/* --- Janelas --- */
+#windowsContainer {
+  position: relative;
+  z-index: 10;
+}
+
+/* Estilo básico das janelas */
+.window {
+  position: absolute;
+  background: rgba(255,255,255,1);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  padding: 10px;
+  user-select: none;
+  transition: background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* --- Blur níveis --- */
+.blur-level-0 {
+  background: rgba(255,255,255,1);
+  backdrop-filter: none;
+  box-shadow: 0 0 0 transparent;
+}
+.blur-level-1 {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.blur-level-2 {
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.blur-level-3 {
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(12px) saturate(150%);
+  box-shadow: 0 0 20px rgba(255,255,255,0.25);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 16px;
+}
+.blur-level-4 {
+  background: rgba(255,255,255,0.45);
+  backdrop-filter: blur(16px) saturate(200%) brightness(1.1);
+  box-shadow:
+    inset 0 0 20px rgba(255,255,255,0.3),
+    0 0 30px rgba(0,123,255,0.4);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 20px;
+}
+.blur-level-5 {
+  background: rgba(255,255,255,0.4);
+  backdrop-filter: blur(20px) saturate(250%) brightness(1.2);
+  box-shadow:
+    inset 0 0 30px rgba(255,255,255,0.5),
+    0 0 40px rgba(0,123,255,0.6);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 22px;
+  transition: backdrop-filter 0.5s ease;
+}
+
+/* --- Cursor personalizado --- */
+body.cursor-level-0 {
+  cursor: auto;
+}
+body.cursor-level-1 {
+  cursor: url('images/cursor-simple.png'), pointer;
+}
+body.cursor-level-2 {
+  cursor: url('images/cursor-animated.png'), pointer;
+  animation: cursorGlow 4s infinite alternate;
+}
+body.cursor-level-3 {
+  cursor: url('images/cursor-glass.png'), pointer;
+  filter: drop-shadow(0 0 3px rgba(0,123,255,0.7));
+}
+body.cursor-level-4 {
+  cursor: url('images/cursor-skeuo.png'), pointer;
+  filter: drop-shadow(0 0 6px rgba(0,123,255,0.9));
+}
+body.cursor-level-5 {
+  cursor: url('images/cursor-frutiger.png'), pointer;
+  animation: cursorInteractive 6s infinite alternate;
+}
+
+/* Cursor animations */
+@keyframes cursorGlow {
+  0% { filter: drop-shadow(0 0 5px #4aa6ff);}
+  100% { filter: drop-shadow(0 0 15px #1e5ec7);}
+}
+@keyframes cursorInteractive {
+  0%, 100% { filter: drop-shadow(0 0 6px #46a8ff); transform: rotate(0deg); }
+  50% { filter: drop-shadow(0 0 12px #1c4eff); transform: rotate(5deg); }
+}
+
+/* --- Player de música (Winamp) --- */
+.winamp-player-level-0 {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  color: #333;
+  box-shadow: none;
+  transition: all 0.3s ease;
+  padding: 10px;
+}
+.winamp-player-level-1 {
+  background: linear-gradient(90deg, #4a90e2, #6fb1fc);
+  color: #fff;
+  border: none;
+  box-shadow: 0 0 8px #5aa4ff;
+}
+.winamp-player-level-2 {
+  background: rgba(255,255,255,0.4);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+}
+.winamp-player-level-3 {
+  background: rgba(255,255,255,0.3);
+  backdrop-filter: blur(12px) saturate(140%);
+  box-shadow: 0 0 15px rgba(100,150,255,0.6);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 14px;
+  color: #204080;
+}
+.winamp-player-level-4 {
+  background: linear-gradient(135deg, #4a90e2, #a1c4fd);
+  box-shadow:
+    inset 0 0 10px #7ebaff,
+    0 0 25px #3b72e8;
+  border-radius: 16px;
+  color: #0f2a5b;
+  font-weight: 700;
+  transition: background 0.4s ease;
+}
+.winamp-player-level-5 {
+  background: linear-gradient(135deg, #1f3a93, #5ab1ff);
+  box-shadow:
+    inset 0 0 15px #a2c8ff,
+    0 0 40px #2f69cc;
+  border-radius: 18px;
+  color: #05224f;
+  font-weight: 900;
+  text-shadow: 0 0 4px #b0d2ff;
+  transition: all 0.5s ease;
+  position: relative;
+}
+
+/* Sugestão para botões do player com skeuo */
+.winamp-player-level-5 select,
+.winamp-player-level-5 audio {
+  border-radius: 14px;
+  box-shadow:
+    0 0 8px rgba(80,140,255,0.6),
+    inset 0 0 8px rgba(120,180,255,0.8);
+  transition: all 0.3s ease;
+}
+
+/* --- Barra de tarefas e demais elementos básicos --- */
+#taskbar {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 40px;
+  background: rgba(20, 20, 30, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  z-index: 20;
+  user-select: none;
+  box-shadow: 0 -1px 10px rgba(0,0,0,0.8);
+}
+#taskbarApps button {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  margin: 0 5px;
+  cursor: pointer;
+  color: white;
+  transition: color 0.3s ease;
+}
+#taskbarApps button:hover {
+  color: #0af;
+}
+#taskbarRight {
+  color: #ccc;
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* --- Loja --- */
+#store {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: rgba(255,255,255,0.95);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  z-index: 30;
+  font-weight: 700;
+}
+#storeList button {
+  font-weight: 600;
+}
+
+/* --- Notificações --- */
 #notifications {
   position: fixed;
-  bottom: 54px;
-  right: 12px;
-  max-width: 320px;
-  z-index: 3000;
-  font-weight: 600;
+  top: 15px;
+  right: 15px;
+  background: #007bff;
   color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  box-shadow: 0 0 12px rgba(0,123,255,0.9);
+  opacity: 0;
   pointer-events: none;
-  text-shadow: 0 0 4px rgba(0,0,0,0.7);
+  transition: opacity 0.4s ease;
+  z-index: 50;
 }
-
-/* Notificação individual */
-.notification {
-  background: rgba(0,123,255,0.85);
-  padding: 12px 18px;
-  margin-top: 8px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  animation: slideInRight 0.3s ease forwards;
-}
-
-/* Animação notificação */
-@keyframes slideInRight {
-  from {
-    transform: translateX(120%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-/* Cursor personalizado */
-body, button {
-  cursor: url('images/cursor.png'), auto;
-}
-
-/* Scroll barras finas */
-.window-body::-webkit-scrollbar {
-  width: 8px;
-}
-.window-body::-webkit-scrollbar-track {
-  background: transparent;
-}
-.window-body::-webkit-scrollbar-thumb {
-  background: rgba(0,123,255,0.6);
-  border-radius: 10px;
+#notifications.show {
+  opacity: 1;
+  pointer-events: auto;
 }
