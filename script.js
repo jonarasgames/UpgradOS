@@ -1,5 +1,4 @@
-// script.js completo atualizado
-
+// Variáveis principais
 let points = parseInt(localStorage.getItem("points")) || 0;
 let upgrades = JSON.parse(localStorage.getItem("upgrades")) || {};
 let firstInteraction = false;
@@ -23,6 +22,7 @@ const musicFiles = [
 ];
 const musicNames = ["Música 1", "Música 2", "Música 3"];
 
+// Inicializa som após interação do usuário
 window.addEventListener("click", () => {
   if (!firstInteraction) {
     firstInteraction = true;
@@ -30,6 +30,7 @@ window.addEventListener("click", () => {
   }
 });
 
+// Esconde tela de boot após carregamento
 window.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
     document.getElementById("bootScreen").style.display = "none";
@@ -39,6 +40,7 @@ window.addEventListener("DOMContentLoaded", () => {
   }, 3100);
 });
 
+// Função para tocar sons
 function playSound(type) {
   try {
     if (type === "click") clickSound.play();
@@ -48,11 +50,13 @@ function playSound(type) {
   } catch (e) {}
 }
 
+// Salva progresso no localStorage
 function saveGame() {
   localStorage.setItem("points", points);
   localStorage.setItem("upgrades", JSON.stringify(upgrades));
 }
 
+// Atualiza relógio digital
 function updateClock() {
   const clock = document.getElementById("clock");
   setInterval(() => {
@@ -61,6 +65,7 @@ function updateClock() {
   }, 1000);
 }
 
+// Atualiza cursor conforme contexto e upgrade
 function updateCursorContext(context) {
   document.body.classList.remove("custom-cursor-default", "custom-cursor-grab", "custom-cursor-pointer");
 
@@ -75,6 +80,7 @@ function updateCursorContext(context) {
   }
 }
 
+// Torna janela arrastável com cursor dinâmico
 function makeDraggable(win, header) {
   let dragging = false, offsetX, offsetY;
 
@@ -100,12 +106,14 @@ function makeDraggable(win, header) {
     win.style.top = `${e.clientY - offsetY}px`;
   });
 
+  // Cursor dedinho para os botões dentro da janela
   win.querySelectorAll("button").forEach(btn => {
     btn.addEventListener("mouseenter", () => updateCursorContext("pointer"));
     btn.addEventListener("mouseleave", () => updateCursorContext("default"));
   });
 }
 
+// Atualiza o UI geral (pontos, upgrades visuais, barra)
 function updateUI() {
   pointsDisplay.textContent = points;
   updateVisualUpgrades();
@@ -113,6 +121,7 @@ function updateUI() {
   updateUpgradesButtons();
 }
 
+// Aplica upgrades visuais em tempo real
 function updateVisualUpgrades() {
   const wallLevel = getUpgradeLevel("wallpaper");
   if (wallLevel >= 1) {
@@ -136,10 +145,12 @@ function updateVisualUpgrades() {
   }
 }
 
+// Obter nível do upgrade
 function getUpgradeLevel(key) {
   return upgrades[key] || 0;
 }
 
+// Dados dos apps
 const appsData = {
   earn: {
     title: "Ganhar Pontos",
@@ -169,20 +180,19 @@ const appsData = {
       <div id="currentTrack" style="text-align:center;"></div>
     </div>`
   },
-  bet: {
-    title: "Aposte seus Pontos",
+  gamble: {
+    title: "Aposta",
     icon: "🎲",
-    content: `
-      <div style="display:flex; flex-direction: column; gap: 10px;">
-        <label>Quantos pontos quer apostar?</label>
-        <input type="number" id="betAmount" min="1" max="1000" style="padding:5px; border-radius:4px; border:none;"/>
-        <button id="betBtn" class="upgrade">Fazer aposta</button>
-        <div id="betResult" style="margin-top:10px; font-weight:bold;"></div>
-        <canvas id="betGameCanvas" width="320" height="150" style="border:1px solid #0078d7; border-radius:4px; background:#111; display:none; margin-top:10px;"></canvas>
-      </div>`
+    content: `<div class="gamble-app">
+      <p>Escolha um modo:</p>
+      <button id="luckMode">🎯 Sorte</button>
+      <button id="skillMode">🕹️ Habilidade</button>
+      <div id="gambleOutput" style="margin-top:10px;"></div>
+    </div>`
   }
 };
 
+// Upgrades disponíveis com máximo de 5 níveis
 const allUpgrades = {
   wallpaper: { max: 5, label: "🖼 Papel de Parede" },
   blur: { max: 5, label: "🌫 Blur nas Janelas" },
@@ -190,6 +200,7 @@ const allUpgrades = {
   player: { max: 5, label: "🎧 Upgrade do Player" }
 };
 
+// Abrir apps fixos ao clicar na barra de tarefas
 taskbarApps.querySelectorAll(".appIcon").forEach(btn => {
   btn.onclick = () => {
     openApp(btn.dataset.app);
@@ -197,6 +208,7 @@ taskbarApps.querySelectorAll(".appIcon").forEach(btn => {
   };
 });
 
+// Abre app e cria janela, com todos handlers
 const openWindows = {};
 let zIndexCounter = 100;
 
@@ -214,6 +226,7 @@ function openApp(key) {
   win.style.left = "100px";
   win.style.zIndex = ++zIndexCounter;
 
+  // Cabeçalho com botões
   const header = document.createElement("div");
   header.className = "window-header";
   header.innerHTML = `
@@ -225,6 +238,7 @@ function openApp(key) {
     </div>`;
   win.appendChild(header);
 
+  // Corpo
   const body = document.createElement("div");
   body.className = "window-body";
   body.innerHTML = app.content;
@@ -233,23 +247,28 @@ function openApp(key) {
   openWindows[key] = win;
   updateUI();
 
+  // Fechar janela
   header.querySelector(".closeBtn").onclick = () => {
     win.remove();
     delete openWindows[key];
     updateTaskbarIcons();
   };
 
+  // Minimizar janela
   header.querySelector(".minimizeBtn").onclick = () => {
     win.style.display = "none";
   };
 
+  // Maximizar/restaurar
   header.querySelector(".maximizeBtn").onclick = () => {
     win.classList.toggle("maximized");
   };
 
+  // Tornar arrastável com cursor dinâmico
   makeDraggable(win, header);
   focusWindow(win);
 
+  // Apps específicos
   if (key === "earn") {
     body.querySelector("#earnPointsBtn").onclick = () => {
       points++;
@@ -268,16 +287,68 @@ function openApp(key) {
     setupMusicPlayer(body);
   }
 
-  if (key === "bet") {
-    setupBetGame(body);
+  if (key === "gamble") {
+    const output = body.querySelector("#gambleOutput");
+    let lockedUntil = parseInt(localStorage.getItem("gamble_lock")) || 0;
+    const now = Date.now();
+    if (now < lockedUntil) {
+      output.innerHTML = `🕑 Você está descansando... volte depois de ${Math.ceil((lockedUntil - now) / 1000)}s`;
+      return;
+    }
+
+    const lockGamble = () => {
+      const delay = 1000 * (120 + Math.floor(Math.random() * 60)); // 2~3 minutos aleatório
+      localStorage.setItem("gamble_lock", Date.now() + delay);
+    };
+
+    body.querySelector("#luckMode").onclick = () => {
+      const bet = Math.floor(points * 0.1) || 1;
+      if (points < bet) return output.innerHTML = "💸 Pontos insuficientes!";
+
+      points -= bet;
+      const win = Math.random() < 0.5;
+      if (win) {
+        const gain = bet * 2;
+        points += gain;
+        output.innerHTML = `🎉 Você ganhou! +${gain} pts`;
+      } else {
+        output.innerHTML = `😢 Perdeu ${bet} pts...`;
+      }
+      saveGame();
+      updateUI();
+      lockGamble();
+    };
+
+    body.querySelector("#skillMode").onclick = () => {
+      const bet = Math.floor(points * 0.2) || 2;
+      if (points < bet) return output.innerHTML = "💸 Pontos insuficientes!";
+
+      const num = Math.floor(Math.random() * 10);
+      const input = prompt("Adivinhe um número de 0 a 9:");
+      if (input === null) return;
+
+      if (parseInt(input) === num) {
+        const gain = bet * 3;
+        points += gain;
+        output.innerHTML = `🎯 Acertei! Era ${num}. Você ganhou ${gain} pts`;
+      } else {
+        points -= bet;
+        output.innerHTML = `❌ Era ${num}. Perdeu ${bet} pts`;
+      }
+      saveGame();
+      updateUI();
+      lockGamble();
+    };
   }
 }
 
+// Dar foco na janela
 function focusWindow(win) {
   zIndexCounter++;
   win.style.zIndex = zIndexCounter;
 }
 
+// Atualizar ícones ativos na barra de tarefas
 function updateTaskbarIcons() {
   taskbarApps.querySelectorAll(".appIcon").forEach(icon => {
     if (openWindows[icon.dataset.app]) {
@@ -288,6 +359,7 @@ function updateTaskbarIcons() {
   });
 }
 
+// Atualiza botões de upgrade (desabilita/abilita)
 function updateUpgradesButtons() {
   document.querySelectorAll(".upgrade").forEach(btn => {
     if (btn.disabled) btn.classList.add("disabled");
@@ -295,6 +367,7 @@ function updateUpgradesButtons() {
   });
 }
 
+// Atualiza a UI da loja em tempo real sem fechar
 function updateStoreUI(body) {
   const storeList = body.querySelector(".store-list");
   if (!storeList) return;
@@ -304,8 +377,8 @@ function updateStoreUI(body) {
     const level = getUpgradeLevel(k);
     const max = allUpgrades[k].max;
     const nextLevel = level + 1;
-    const baseCost = 10;
-    const cost = Math.floor(baseCost * Math.pow(1.5, level));
+    // Custo cresce 50% a cada nível, começando em 10
+    const cost = Math.floor(10 * Math.pow(1.5, level));
 
     const btn = document.createElement("button");
     btn.className = "upgrade";
@@ -320,7 +393,7 @@ function updateStoreUI(body) {
         updateUI();
         playSound("notify");
         notify(`${allUpgrades[k].label} melhorado para nível ${nextLevel}!`);
-        updateStoreUI(body);
+        updateStoreUI(body); // Atualiza loja instantaneamente
       } else {
         playSound("error");
       }
@@ -330,6 +403,7 @@ function updateStoreUI(body) {
   });
 }
 
+// Notificações simples
 function notify(msg) {
   const box = document.createElement("div");
   box.className = "notification";
@@ -338,6 +412,7 @@ function notify(msg) {
   setTimeout(() => box.remove(), 4000);
 }
 
+// Player música
 let audio = new Audio();
 let currentTrackIndex = 0;
 let isPlaying = false;
@@ -380,152 +455,4 @@ function setupMusicPlayer(body) {
     };
     listDiv.appendChild(btn);
   });
-}
-
-// Controle para cooldown de aposta
-let lastBetTimestamp = 0;
-let betCooldown = 0;
-
-function setupBetGame(body) {
-  const betBtn = body.querySelector("#betBtn");
-  const betInput = body.querySelector("#betAmount");
-  const betResult = body.querySelector("#betResult");
-  const canvas = body.querySelector("#betGameCanvas");
-  const ctx = canvas.getContext("2d");
-
-  let gameActive = false;
-  let playerX = 140;
-  let playerY = 130;
-  let playerSize = 20;
-  let obstacleX = 320;
-  let obstacleY = 130;
-  let obstacleSize = 20;
-  let speed = 4;
-
-  function resetGame() {
-    playerX = 140;
-    playerY = 130;
-    obstacleX = 320;
-    betResult.textContent = "";
-    gameActive = false;
-    canvas.style.display = "none";
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Desenha jogador
-    ctx.fillStyle = "#0a64c8";
-    ctx.fillRect(playerX, playerY, playerSize, playerSize);
-
-    // Desenha obstáculo
-    ctx.fillStyle = "#d14424";
-    ctx.fillRect(obstacleX, obstacleY, obstacleSize, obstacleSize);
-  }
-
-  function update() {
-    if (!gameActive) return;
-
-    obstacleX -= speed;
-    if (obstacleX + obstacleSize < 0) {
-      // Jogador venceu (obstáculo saiu da tela)
-      endGame(true);
-      return;
-    }
-
-    // Checa colisão
-    if (
-      playerX < obstacleX + obstacleSize &&
-      playerX + playerSize > obstacleX &&
-      playerY < obstacleY + obstacleSize &&
-      playerY + playerSize > obstacleY
-    ) {
-      // Jogador perdeu (colidiu)
-      endGame(false);
-      return;
-    }
-
-    draw();
-    requestAnimationFrame(update);
-  }
-
-  function endGame(won) {
-    gameActive = false;
-    canvas.style.display = "none";
-    betInput.disabled = false;
-    betBtn.disabled = false;
-
-    if (won) {
-      let ganho = currentBet * 2;
-      points += ganho;
-      betResult.textContent = `Você ganhou ${ganho} pontos! 🎉`;
-      playSound("notify");
-    } else {
-      points -= currentBet;
-      betResult.textContent = `Você perdeu ${currentBet} pontos. 😢`;
-      playSound("error");
-    }
-    saveGame();
-    updateUI();
-  }
-
-  function startGame() {
-    if (gameActive) return;
-
-    const now = Date.now();
-    if (now - lastBetTimestamp < betCooldown) {
-      const timeLeft = Math.ceil((betCooldown - (now - lastBetTimestamp)) / 1000);
-      betResult.textContent = `Espere ${timeLeft}s para apostar novamente.`;
-      playSound("error");
-      return;
-    }
-
-    let bet = parseInt(betInput.value);
-    if (!bet || bet < 1) {
-      betResult.textContent = "Digite um valor válido para apostar.";
-      playSound("error");
-      return;
-    }
-    if (bet > points) {
-      betResult.textContent = "Você não tem pontos suficientes para essa aposta.";
-      playSound("error");
-      return;
-    }
-
-    currentBet = bet;
-    betInput.disabled = true;
-    betBtn.disabled = true;
-    canvas.style.display = "block";
-    betResult.textContent = "Use as setas ↑ ↓ para desviar do bloco vermelho!";
-
-    // Reset posições
-    playerY = 130;
-    obstacleX = 320;
-
-    // Sorteia cooldown entre 10s e 30s
-    betCooldown = (Math.floor(Math.random() * 21) + 10) * 1000;
-    lastBetTimestamp = now;
-
-    gameActive = true;
-    draw();
-    update();
-  }
-
-  betBtn.onclick = startGame;
-
-  // Controle de teclado
-  window.addEventListener("keydown", e => {
-    if (!gameActive) return;
-    if (e.key === "ArrowUp" && playerY > 5) playerY -= 20;
-    if (e.key === "ArrowDown" && playerY < canvas.height - playerSize - 5) playerY += 20;
-  });
-
-  // Limpa estado se app fechar
-  body.closest(".window").querySelector(".closeBtn").onclick = () => {
-    gameActive = false;
-    canvas.style.display = "none";
-    betInput.disabled = false;
-    betBtn.disabled = false;
-    betResult.textContent = "";
-  };
 }
