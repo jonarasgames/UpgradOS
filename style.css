@@ -80,7 +80,6 @@
 .wallpaper-level-5 {
   background: url('images/wallpaper5.png') no-repeat center center / cover;
   filter: drop-shadow(0 0 10px rgba(100,150,255,0.7));
-  animation: wallpaperInteractive 15s infinite;
   cursor: url('images/cursor-aero.png'), auto;
 }
 
@@ -88,10 +87,6 @@
 @keyframes wallpaperShimmer {
   0%, 100% { background-position: left center; }
   50% { background-position: right center; }
-}
-@keyframes wallpaperInteractive {
-  0%, 100% { filter: drop-shadow(0 0 10px rgba(100,150,255,0.7)); }
-  50% { filter: drop-shadow(0 0 20px rgba(80,180,255,0.9)); }
 }
 
 /* --- Janelas --- */
@@ -106,9 +101,34 @@
   background: rgba(255,255,255,1);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  padding: 10px;
+  padding: 0;
   user-select: none;
   transition: background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+}
+
+.window-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  background: rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-radius: 12px 12px 0 0;
+}
+
+.window-controls button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 5px;
+  font-size: 1rem;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+}
+
+.window-content {
+  padding: 10px;
 }
 
 /* --- Blur níveis --- */
@@ -152,40 +172,6 @@
   border: 1px solid rgba(255,255,255,0.5);
   border-radius: 22px;
   transition: backdrop-filter 0.5s ease;
-}
-
-/* --- Cursor personalizado --- */
-body.cursor-level-0 {
-  cursor: auto;
-}
-body.cursor-level-1 {
-  cursor: url('images/cursor-simple.png'), pointer;
-}
-body.cursor-level-2 {
-  cursor: url('images/cursor-animated.png'), pointer;
-  animation: cursorGlow 4s infinite alternate;
-}
-body.cursor-level-3 {
-  cursor: url('images/cursor-glass.png'), pointer;
-  filter: drop-shadow(0 0 3px rgba(0,123,255,0.7));
-}
-body.cursor-level-4 {
-  cursor: url('images/cursor-skeuo.png'), pointer;
-  filter: drop-shadow(0 0 6px rgba(0,123,255,0.9));
-}
-body.cursor-level-5 {
-  cursor: url('images/cursor-frutiger.png'), pointer;
-  animation: cursorInteractive 6s infinite alternate;
-}
-
-/* Cursor animations */
-@keyframes cursorGlow {
-  0% { filter: drop-shadow(0 0 5px #4aa6ff);}
-  100% { filter: drop-shadow(0 0 15px #1e5ec7);}
-}
-@keyframes cursorInteractive {
-  0%, 100% { filter: drop-shadow(0 0 6px #46a8ff); transform: rotate(0deg); }
-  50% { filter: drop-shadow(0 0 12px #1c4eff); transform: rotate(5deg); }
 }
 
 /* --- Player de música (Winamp) --- */
@@ -241,16 +227,6 @@ body.cursor-level-5 {
   position: relative;
 }
 
-/* Sugestão para botões do player com skeuo */
-.winamp-player-level-5 select,
-.winamp-player-level-5 audio {
-  border-radius: 14px;
-  box-shadow:
-    0 0 8px rgba(80,140,255,0.6),
-    inset 0 0 8px rgba(120,180,255,0.8);
-  transition: all 0.3s ease;
-}
-
 /* --- Barra de tarefas e demais elementos básicos --- */
 #taskbar {
   position: absolute;
@@ -269,15 +245,17 @@ body.cursor-level-5 {
 #taskbarApps button {
   background: none;
   border: none;
-  font-size: 1.4rem;
+  padding: 5px;
   margin: 0 5px;
   cursor: pointer;
-  color: white;
-  transition: color 0.3s ease;
 }
-#taskbarApps button:hover {
-  color: #0af;
+
+#taskbarApps button img {
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
 }
+
 #taskbarRight {
   color: #ccc;
   font-weight: 600;
@@ -305,6 +283,20 @@ body.cursor-level-5 {
 }
 #storeList button {
   font-weight: 600;
+  margin-bottom: 8px;
+  padding: 10px;
+  width: 100%;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: #007bff;
+  color: #fff;
+}
+
+#storeList button:disabled {
+  background: #555;
+  color: #aaa;
+  cursor: not-allowed;
 }
 
 /* --- Notificações --- */
@@ -325,4 +317,53 @@ body.cursor-level-5 {
 #notifications.show {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* --- Calculadora --- */
+.calc-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.calc-buttons button {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f5f5f5;
+  cursor: pointer;
+}
+
+.calc-buttons button:hover {
+  background: #e0e0e0;
+}
+
+#calcDisplay {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  text-align: right;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* --- Winamp Player --- */
+.playlist {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.playlist button {
+  padding: 5px;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.playlist button:hover {
+  background: #e0e0e0;
 }
