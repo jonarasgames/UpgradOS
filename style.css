@@ -36,39 +36,70 @@ body {
   overflow: hidden;
 }
 
-#wallpaper {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  transition: background-image 0.5s ease;
-  z-index: 0;
+/* Wallpapers animados níveis 0 a 5 */
+.wallpaper-level-0 {
+  background: #111;
+  animation: none;
 }
 
-.aero-wallpaper {
-  background-image: url('https://wallpapercave.com/wp/wp2708044.jpg');
-  background-size: cover;
-  background-position: center;
-  filter: saturate(1.2) brightness(1.1);
+.wallpaper-level-1 {
+  background: linear-gradient(135deg, #85d8ce, #2b87a3);
+  animation: none;
 }
 
-/* Estilo de janela */
+.wallpaper-level-2 {
+  background: linear-gradient(45deg, #008080, #20b2aa, #5f9ea0);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+.wallpaper-level-3 {
+  background: linear-gradient(270deg, #007BFF, #00FFFF, #00BFFF, #1E90FF);
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
+}
+
+.wallpaper-level-4 {
+  background: linear-gradient(45deg, #007BFF, #00FFFF, #1E90FF, #00BFFF);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+  box-shadow: 0 0 40px 6px #00e5ff inset;
+}
+
+.wallpaper-level-5 {
+  background: linear-gradient(45deg, #00e5ff, #0088cc, #33ccff, #66d9ff);
+  background-size: 400% 400%;
+  animation: gradientShift 10s ease infinite;
+  box-shadow:
+    0 0 60px 10px #00e5ff,
+    inset 0 0 25px #33ccff;
+  filter: drop-shadow(0 0 10px #00e5ff);
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Efeitos blur vidrados janelas */
+
 .window {
   position: absolute;
   width: 350px;
   height: 250px;
-  background: #252526;
-  border: 1px solid #3c3c3c;
+  background: rgba(37, 37, 38, 0.9);
   border-radius: 5px;
   box-shadow: 0 0 10px #0008 inset;
   display: flex;
   flex-direction: column;
   user-select: none;
-  overflow: auto;
+  overflow: hidden;
   z-index: 100;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, background 0.3s ease;
+  border: 1px solid #3c3c3c;
   resize: both;
+  overflow: auto;
 }
 
 .window.maximized {
@@ -78,140 +109,120 @@ body {
   left: 5vw !important;
 }
 
-.aero-window {
-  border: 1px solid rgba(255,255,255,0.3);
-  box-shadow: 0 0 20px rgba(0,255,255,0.3), 0 0 40px rgba(0,255,255,0.2) inset;
-  backdrop-filter: blur(10px);
+/* Blur níveis para janela */
+.blur-level-0 {
+  backdrop-filter: none;
+  background: rgba(37, 37, 38, 0.9);
+  border-color: #3c3c3c;
+  box-shadow: 0 0 10px #0008 inset;
 }
 
-.window-header {
-  height: 30px;
-  background: #0078d7;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
-  cursor: grab;
-  user-select: none;
-}
-
-.window-header span {
-  font-weight: bold;
-  font-size: 14px;
-}
-
-.window-header button {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  user-select: none;
-  padding: 0 5px;
-  transition: background 0.2s ease;
-  border-radius: 3px;
-}
-.window-header button:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.window-body {
-  flex: 1;
-  background: #1e1e1e;
-  padding: 10px;
-  color: #ddd;
-  overflow: auto;
-  font-size: 14px;
-}
-
-.window-body.blur {
+.blur-level-1 {
   backdrop-filter: blur(6px);
-  background-color: rgba(30,30,30,0.6);
+  background: rgba(255,255,255,0.35);
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 4px 8px rgba(255,255,255,0.15);
+}
+
+.blur-level-2 {
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.3);
+  border: 1px solid rgba(255,255,255,0.3);
+  box-shadow: 0 6px 14px rgba(0, 123, 255, 0.25);
+}
+
+.blur-level-3 {
+  backdrop-filter: blur(18px);
+  background: rgba(255,255,255,0.25);
+  border: 1px solid rgba(255,255,255,0.35);
+  box-shadow: 0 8px 18px rgba(0, 123, 255, 0.35);
+}
+
+.blur-level-4 {
+  backdrop-filter: blur(22px);
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(0, 170, 255, 0.4);
+  box-shadow:
+    0 8px 18px rgba(0, 170, 255, 0.4),
+    inset 0 0 10px rgba(255,255,255,0.2);
+  animation: windowGlow 6s ease-in-out infinite alternate;
+}
+
+.blur-level-5 {
+  backdrop-filter: blur(28px);
+  background: rgba(255,255,255,0.15);
+  border: 1px solid #00e5ff;
+  box-shadow:
+    0 0 40px 8px #00e5ff,
+    inset 0 0 15px #33ccff;
+  animation: windowGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes windowGlow {
+  0% {
+    box-shadow:
+      0 0 30px 6px #00bfff,
+      inset 0 0 10px #33ccff;
+  }
+  100% {
+    box-shadow:
+      0 0 40px 10px #00e5ff,
+      inset 0 0 18px #66d9ff;
+  }
 }
 
 /* Barra de tarefas */
 #taskbar {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 40px;
-  background: #0078d7;
-  border-top: 1px solid #3c3c3c;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background-color: #005fbb;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 10px;
-  z-index: 1000;
-}
-
-.aero-taskbar {
-  background: linear-gradient(to top, #0078d7, #1e90ff);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+  user-select: none;
+  z-index: 999;
 }
 
 #startButton {
-  background: #0078d7;
+  background: transparent;
   border: none;
-  color: white;
-  font-weight: bold;
-  padding: 5px 12px;
-  margin-right: 10px;
-  border-radius: 3px;
   cursor: pointer;
-  user-select: none;
-  transition: background 0.3s ease;
-}
-#startButton:hover {
-  background: #005a9e;
-}
-
-#points {
-  margin-right: 20px;
-  font-weight: bold;
-  min-width: 60px;
-  text-align: right;
-  user-select: none;
-}
-
-#taskbarApps {
-  display: flex;
-  gap: 8px;
-  flex: 1;
-}
-
-.appIcon {
-  font-size: 20px;
-  cursor: pointer;
-  padding: 5px;
-  border-radius: 3px;
-  user-select: none;
-  transition: background 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.appIcon.active, .appIcon:hover {
-  background-color: #0a64c8;
-}
-
-/* Upgrade */
-button.upgrade {
-  width: 100%;
-  background: #0a64c8;
-  border: none;
-  color: white;
-  padding: 8px;
-  margin: 4px 0;
+  padding: 4px 6px;
   border-radius: 4px;
+}
+
+#startButton:hover {
+  background-color: #004a99;
+}
+
+#taskbarApps button.appIcon {
+  font-size: 20px;
+  background: transparent;
+  border: none;
+  margin: 0 4px;
   cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+#taskbarApps button.appIcon:hover {
+  background-color: #003f7f;
+}
+
+#taskbarRight {
+  color: white;
   font-weight: 600;
-  transition: background 0.3s ease;
-}
-button.upgrade:hover:not(:disabled) {
-  background: #004a86;
-}
-button.upgrade:disabled {
-  background: #444;
-  cursor: not-allowed;
-  opacity: 0.7;
+  font-size: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
 /* Notificações */
@@ -219,91 +230,103 @@ button.upgrade:disabled {
   position: fixed;
   top: 10px;
   right: 10px;
-  width: 280px;
-  z-index: 20000;
-}
-
-.notification {
-  background: #0078d7;
+  min-width: 240px;
+  max-width: 320px;
+  background: #0080ffcc;
   color: white;
-  padding: 12px 16px;
-  margin-bottom: 10px;
-  border-radius: 4px;
-  font-weight: 600;
-  box-shadow: 0 0 10px #0078d7cc;
-  animation: slideUp 0.3s ease forwards;
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 8px #0070ffcc;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 10000;
 }
 
-@keyframes slideUp {
-  from { transform: translateY(30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-/* Player música */
-.music-player {
+/* Janela da Calculadora */
+.calculator {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  color: #ddd;
-}
-
-.music-list {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-}
-
-.music-list button {
-  background: #0a64c8;
-  border: none;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 3px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: background 0.3s ease;
-}
-
-.music-list button:hover {
-  background: #004a86;
-}
-
-.music-controls {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.music-controls button {
   font-size: 18px;
-  cursor: pointer;
+  user-select: text;
+  background: rgba(255,255,255,0.85);
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow:
+    8px 8px 16px #b2d9ff,
+    -8px -8px 16px #e3f3ff;
+  color: #003366;
+}
+
+#calcDisplay {
+  font-size: 24px;
+  padding: 12px 20px;
+  border-radius: 14px;
   border: none;
-  background: #0078d7;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 4px;
-  transition: background 0.3s ease;
+  box-shadow:
+    inset 3px 3px 6px rgba(255,255,255,0.9),
+    inset -3px -3px 6px rgba(0,123,255,0.3);
+  text-align: right;
+  user-select: text;
+  min-height: 48px;
+  pointer-events: none;
+  color: #004080;
+  background: white;
 }
 
-.music-controls button:hover {
-  background: #004a86;
+.calc-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
 
-#currentTrack {
-  font-weight: bold;
-  font-size: 14px;
-  text-align: center;
-}
-
-/* Cursores customizados */
-.custom-cursor-default {
-  cursor: url('icons/cursor_aero.cur'), auto;
-}
-
-.custom-cursor-grab {
-  cursor: grab;
-}
-
-.custom-cursor-pointer {
+.calc-buttons button {
+  padding: 16px 0;
+  border-radius: 16px;
+  border: none;
+  font-weight: 700;
+  font-size: 22px;
+  background: linear-gradient(145deg, #e6f3ff, #9dcfff);
+  box-shadow:
+    6px 6px 10px #a4c5ea,
+    -6px -6px 10px #d3ebff;
   cursor: pointer;
+  transition: background 0.3s ease;
+  user-select: none;
+  color: #003366;
+}
+
+.calc-buttons button:hover {
+  background: linear-gradient(145deg, #9dcfff, #4286d1);
+  color: white;
+}
+
+/* Janelas título e controle */
+.window-header {
+  background: rgba(0, 123, 255, 0.8);
+  color: white;
+  padding: 8px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: grab;
+  user-select: none;
+  font-weight: 700;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.window-header .controls button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 12px;
+  user-select: none;
+}
+
+.window-header .controls button:hover {
+  color: #00e5ff;
 }
