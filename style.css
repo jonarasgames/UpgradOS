@@ -1,394 +1,258 @@
-/* Reset e fonte */
+/* Reset básico */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  user-select: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  scroll-behavior: smooth;
 }
 
-/* Tela de boot */
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #111;
+  overflow: hidden;
+  user-select: none;
+  cursor: default;
+}
+
+/* Boot screen */
 #bootScreen {
   position: fixed;
   inset: 0;
-  background: #111;
+  background: #000;
   color: #0f0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 2em;
-  z-index: 999999 !important;
+  font-size: 1.5em;
+  z-index: 9999;
 }
 
 #bootBar {
-  width: 70%;
-  height: 10px;
-  background: #222;
   margin-top: 20px;
-  border-radius: 5px;
+  width: 300px;
+  height: 6px;
+  background: #222;
   overflow: hidden;
+  border-radius: 3px;
 }
 
 #bootBar .progress {
-  height: 100%;
   width: 0%;
+  height: 100%;
   background: #0f0;
   animation: loadProgress 3s linear forwards;
 }
 
 @keyframes loadProgress {
-  to {
-    width: 100%;
-  }
+  0% { width: 0%; }
+  100% { width: 100%; }
 }
 
-/* Desktop */
-#desktop {
-  position: relative;
-  height: 100vh;
-  overflow: hidden;
-  background: var(--desktop-bg, #0078d7);
-  transition: background 0.5s ease;
-  cursor: default;
-}
-
-/* Papel de parede upgrade */
+/* Papel de parede */
 #wallpaper {
   position: absolute;
   inset: 0;
+  background: linear-gradient(to bottom, #1e1e1e, #252525);
   background-size: cover;
   background-position: center;
-  transition: background-image 0.5s ease;
-  z-index: 0;
-}
-
-/* Blur upgrade nas janelas */
-.window.blur {
-  backdrop-filter: blur(15px);
-  background: rgba(255 255 255 / 0.25);
-  border: 1.5px solid rgba(255 255 255 / 0.4);
+  z-index: -1;
 }
 
 /* Barra de tarefas */
 #taskbar {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   height: 40px;
-  background: rgba(0, 120, 215, 0.85);
-  backdrop-filter: blur(12px);
+  background: rgba(0,0,0,0.7);
   display: flex;
   align-items: center;
-  padding: 0 10px;
-  z-index: 10000;
+  padding: 0 8px;
   color: white;
-  font-weight: 600;
-  user-select: none;
+  font-size: 14px;
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  z-index: 20;
 }
 
-/* Botão iniciar */
 #startButton {
   background: transparent;
   border: none;
   cursor: pointer;
   margin-right: 10px;
-  padding: 5px;
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s ease;
-  color: white;
 }
 
-#startButton:hover,
-#startButton:focus {
-  background: rgba(255 255 255 / 0.2);
-  outline: none;
-}
-
-/* Container dos ícones fixos dos apps */
 #taskbarApps {
   display: flex;
-  gap: 10px;
-  align-items: center;
+  gap: 6px;
 }
 
-/* Ícones dos apps na barra */
 .appIcon {
   background: transparent;
   border: none;
-  font-size: 1.5em;
-  color: #ccc;
+  font-size: 20px;
   cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 4px;
-  position: relative;
-  user-select: none;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  opacity: 0.7;
+  transition: 0.2s;
 }
 
-.appIcon:hover,
-.appIcon.active {
-  background-color: rgba(255 255 255 / 0.3);
-  color: white;
-  outline: none;
-}
-
-/* Tooltip com nome do app */
-.appIcon::after {
-  content: attr(title);
-  position: absolute;
-  bottom: 45px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,0.75);
-  color: white;
-  font-size: 0.8em;
-  padding: 3px 7px;
-  border-radius: 4px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  user-select: none;
-  z-index: 10001;
-}
-
-.appIcon:hover::after {
+.appIcon:hover {
   opacity: 1;
 }
 
-/* Relógio e pontos */
+.appIcon.active {
+  border-bottom: 2px solid white;
+}
+
+/* Área direita da barra */
 #taskbarRight {
   margin-left: auto;
   display: flex;
-  gap: 20px;
+  gap: 12px;
   align-items: center;
-  font-size: 0.9em;
-}
-
-/* Pontos */
-#pointsLabel {
-  user-select: text;
-}
-
-/* Relógio */
-#clock {
-  user-select: text;
-  font-weight: 400;
 }
 
 /* Menu iniciar */
 #startMenu {
-  position: fixed;
-  bottom: 40px;
+  position: absolute;
+  bottom: 42px;
   left: 10px;
-  width: 250px;
-  background: rgba(255 255 255 / 0.95);
-  box-shadow: 0 0 15px rgba(0,0,0,0.25);
-  border-radius: 8px;
-  padding: 10px;
-  z-index: 10001;
-  transition: opacity 0.3s ease;
-  user-select: none;
+  width: 200px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 99;
 }
 
-/* Janela */
+/* Janelas */
 .window {
   position: absolute;
-  background: rgba(255 255 255 / 0.95);
-  border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.4);
   width: 350px;
-  min-height: 250px;
+  height: 250px;
+  background: rgba(240,240,240,0.97);
+  border-radius: 8px;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.3);
   display: flex;
   flex-direction: column;
-  user-select: text;
-  transition: box-shadow 0.2s ease;
-  z-index: 10;
-  border: 1.5px solid rgba(0,0,0,0.15);
+  overflow: hidden;
+  animation: fadeIn 0.2s;
 }
 
-/* Barra de título */
 .window-header {
-  background: rgba(0, 120, 215, 0.9);
+  background: #0078D7;
   color: white;
-  padding: 10px 12px;
-  font-weight: 700;
+  padding: 8px 12px;
+  font-weight: bold;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  cursor: grab;
-  user-select: none;
+  cursor: move;
 }
 
-.window-header.dragging {
-  cursor: grabbing;
-}
-
-/* Botões da janela */
 .window-header button {
   background: transparent;
   border: none;
   color: white;
-  font-size: 1.1em;
+  font-size: 14px;
+  margin-left: 4px;
   cursor: pointer;
-  margin-left: 10px;
-  padding: 0 6px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
 }
 
-.window-header button:hover {
-  background: rgba(255 255 255 / 0.3);
-}
-
-/* Corpo da janela */
 .window-body {
-  padding: 15px;
   flex: 1;
-  overflow: auto;
-  color: #222;
-}
-
-/* Notepad textarea */
-textarea {
-  width: 100%;
-  height: 100%;
-  resize: none;
-  font-family: Consolas, monospace;
-  font-size: 1em;
-  border: 1px solid #ccc;
-  border-radius: 8px;
   padding: 10px;
-  box-sizing: border-box;
-  background: rgba(255 255 255 / 0.95);
+  overflow: auto;
+  background: white;
 }
 
-/* Botões de upgrade */
-.upgrade {
-  margin: 8px 0;
-  padding: 12px 18px;
-  width: 100%;
-  border: none;
-  background: #0078d7;
-  color: white;
-  font-weight: 700;
-  border-radius: 8px;
+/* Janelas com blur */
+.blur {
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Player */
+.music-player {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.music-controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.music-controls button {
+  font-size: 20px;
   cursor: pointer;
-  transition: background-color 0.25s ease;
-  user-select: none;
 }
 
-.upgrade:hover:not(.disabled) {
-  background: #005a9e;
+.music-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
-.upgrade.disabled {
-  background: #666;
-  cursor: default;
-  pointer-events: none;
+.music-list button {
+  background: #eee;
+  border: none;
+  padding: 5px;
+  text-align: left;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.music-list button.active {
+  background: #ccc;
+  font-weight: bold;
 }
 
 /* Notificações */
 #notifications {
   position: fixed;
-  bottom: 60px;
-  right: 15px;
-  max-width: 320px;
+  bottom: 50px;
+  right: 10px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  z-index: 1100;
-  user-select: none;
-}
-
-/* Notificação individual */
-.notification {
-  background: #0078d7;
-  color: white;
-  padding: 14px 18px;
-  border-radius: 10px;
-  box-shadow: 0 0 12px rgba(0,120,215,0.5);
-  animation: fadeInOut 4s forwards;
-  font-weight: 700;
-}
-
-/* Animação fade */
-@keyframes fadeInOut {
-  0%, 100% {opacity: 0;}
-  10%, 90% {opacity: 1;}
-}
-
-/* Cursor customizado upgrade */
-.custom-cursor {
-  cursor: url('https://cdn-icons-png.flaticon.com/512/32/32441.png'), auto !important;
-}
-
-/* Player de música estilizado */
-.music-player {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.music-list {
-  max-height: 150px;
-  overflow-y: auto;
-  border: 1px solid #0078d7;
-  border-radius: 6px;
-  padding: 8px;
-  background: rgba(255 255 255 / 0.95);
-}
-
-.music-list button {
-  background: transparent;
-  border: none;
-  text-align: left;
-  padding: 6px 10px;
-  width: 100%;
-  cursor: pointer;
-  font-weight: 600;
-  border-radius: 5px;
-  transition: background-color 0.25s ease;
-}
-
-.music-list button:hover,
-.music-list button.active {
-  background: #0078d7;
-  color: white;
-}
-
-.music-controls {
-  display: flex;
   gap: 10px;
-  justify-content: center;
+  z-index: 2000;
 }
 
-.music-controls button {
-  background: #0078d7;
-  border: none;
+.notification {
+  background: #333;
   color: white;
-  font-weight: 700;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
+  padding: 10px 16px;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  animation: slideUp 0.5s ease;
 }
 
-.music-controls button:hover:enabled {
-  background: #005a9e;
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.music-controls button:disabled {
-  background: #aaa;
-  cursor: default;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Cursor customizado */
+.custom-cursor {
+  cursor: url('icons/cursor_aero.cur'), auto;
 }
