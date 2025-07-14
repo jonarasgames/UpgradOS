@@ -180,14 +180,17 @@ const appsData = {
       <div id="currentTrack" style="text-align:center;"></div>
     </div>`
   },
-  gamble: {
-    title: "Aposta",
+  bet: {
+    title: "Bahze",
     icon: "🎲",
-    content: `<div class="gamble-app">
-      <p>Escolha um modo:</p>
-      <button id="luckMode">🎯 Sorte</button>
-      <button id="skillMode">🕹️ Habilidade</button>
-      <div id="gambleOutput" style="margin-top:10px;"></div>
+    content: `<div id="betGameArea">
+      <p>Aposte seus pontos e tente ganhar mais! (Máximo 1 aposta a cada 2 minutos)</p>
+      <p>Escolha o modo:</p>
+      <div id="betButtons">
+        <button id="betSkill">Modo Habilidade (difícil)</button>
+        <button id="betChance">Modo Sorte (50%)</button>
+      </div>
+      <p id="betStatus"></p>
     </div>`
   }
 };
@@ -276,6 +279,10 @@ function openApp(key) {
       updateUI();
       playSound("click");
       notify("Ganhou 1 ponto!");
+      // Atualiza botões da loja em tempo real se aberta
+      if (openWindows.store) {
+        updateStoreUI(openWindows.store.querySelector(".window-body"));
+      }
     };
   }
 
@@ -287,58 +294,8 @@ function openApp(key) {
     setupMusicPlayer(body);
   }
 
-  if (key === "gamble") {
-    const output = body.querySelector("#gambleOutput");
-    let lockedUntil = parseInt(localStorage.getItem("gamble_lock")) || 0;
-    const now = Date.now();
-    if (now < lockedUntil) {
-      output.innerHTML = `🕑 Você está descansando... volte depois de ${Math.ceil((lockedUntil - now) / 1000)}s`;
-      return;
-    }
-
-    const lockGamble = () => {
-      const delay = 1000 * (120 + Math.floor(Math.random() * 60)); // 2~3 minutos aleatório
-      localStorage.setItem("gamble_lock", Date.now() + delay);
-    };
-
-    body.querySelector("#luckMode").onclick = () => {
-      const bet = Math.floor(points * 0.1) || 1;
-      if (points < bet) return output.innerHTML = "💸 Pontos insuficientes!";
-
-      points -= bet;
-      const win = Math.random() < 0.5;
-      if (win) {
-        const gain = bet * 2;
-        points += gain;
-        output.innerHTML = `🎉 Você ganhou! +${gain} pts`;
-      } else {
-        output.innerHTML = `😢 Perdeu ${bet} pts...`;
-      }
-      saveGame();
-      updateUI();
-      lockGamble();
-    };
-
-    body.querySelector("#skillMode").onclick = () => {
-      const bet = Math.floor(points * 0.2) || 2;
-      if (points < bet) return output.innerHTML = "💸 Pontos insuficientes!";
-
-      const num = Math.floor(Math.random() * 10);
-      const input = prompt("Adivinhe um número de 0 a 9:");
-      if (input === null) return;
-
-      if (parseInt(input) === num) {
-        const gain = bet * 3;
-        points += gain;
-        output.innerHTML = `🎯 Acertei! Era ${num}. Você ganhou ${gain} pts`;
-      } else {
-        points -= bet;
-        output.innerHTML = `❌ Era ${num}. Perdeu ${bet} pts`;
-      }
-      saveGame();
-      updateUI();
-      lockGamble();
-    };
+  if (key === "bet") {
+    setupBetGame(body);
   }
 }
 
@@ -359,9 +316,24 @@ function updateTaskbarIcons() {
   });
 }
 
-// Atualiza botões de upgrade (desabilita/abilita)
+// Atualiza botões de upgrade (desabilita/abilita) - atualiza em tempo real
 function updateUpgradesButtons() {
   document.querySelectorAll(".upgrade").forEach(btn => {
+    const text = btn.textContent;
+    const match = text.match(/- (\d+) pts$/);
+    const cost = match ? parseInt(match[1]) : 0;
+
+    const level = parseInt(btn.dataset.level);
+    const max = parseInt(btn.dataset.max);
+
+    if (level >= max) {
+      btn.disabled = true;
+    } else if (points >= cost) {
+      btn.disabled = false;
+    } else {
+      btn.disabled = true;
+    }
+
     if (btn.disabled) btn.classList.add("disabled");
     else btn.classList.remove("disabled");
   });
@@ -377,12 +349,13 @@ function updateStoreUI(body) {
     const level = getUpgradeLevel(k);
     const max = allUpgrades[k].max;
     const nextLevel = level + 1;
-    // Custo cresce 50% a cada nível, começando em 10
-    const cost = Math.floor(10 * Math.pow(1.5, level));
+    const cost = Math.floor(nextLevel * 10 * 1.5 ** level); // custo cresce 50% a cada nível
 
     const btn = document.createElement("button");
     btn.className = "upgrade";
     btn.textContent = `${allUpgrades[k].label} (Nível ${level}/${max}) - ${cost} pts`;
+    btn.dataset.level = level;
+    btn.dataset.max = max;
     btn.disabled = level >= max || points < cost;
 
     btn.onclick = () => {
@@ -393,7 +366,8 @@ function updateStoreUI(body) {
         updateUI();
         playSound("notify");
         notify(`${allUpgrades[k].label} melhorado para nível ${nextLevel}!`);
-        updateStoreUI(body); // Atualiza loja instantaneamente
+        updateStoreUI(body);
+        updateUpgradesButtons();
       } else {
         playSound("error");
       }
@@ -401,6 +375,8 @@ function updateStoreUI(body) {
 
     storeList.appendChild(btn);
   });
+
+  updateUpgradesButtons();
 }
 
 // Notificações simples
@@ -455,4 +431,103 @@ function setupMusicPlayer(body) {
     };
     listDiv.appendChild(btn);
   });
+}
+
+// Setup do jogo de apostas "bet"
+let lastBetTime = 0;
+function setupBetGame(body) {
+  const betSkillBtn = body.querySelector("#betSkill");
+  const betChanceBtn = body.querySelector("#betChance");
+  const betStatus = body.querySelector("#betStatus");
+
+  function canBet() {
+    return Date.now() - lastBetTime > 120000; // 2 minutos
+  }
+
+  function updateStatus(msg) {
+    betStatus.textContent = msg;
+  }
+
+  betSkillBtn.onclick = () => {
+    if (!canBet()) {
+      updateStatus("Espere 2 minutos entre apostas.");
+      playSound("error");
+      return;
+    }
+    if (points <= 0) {
+      updateStatus("Você não tem pontos para apostar.");
+      playSound("error");
+      return;
+    }
+    lastBetTime = Date.now();
+
+    // Desafio habilidade simples: acertar número entre 1 e 5 (o usuário clica no botão 1-5)
+    updateStatus("Clique em um número de 1 a 5:");
+
+    // Remove botões anteriores se existirem
+    const existingBtns = body.querySelectorAll(".betNumberBtn");
+    existingBtns.forEach(b => b.remove());
+
+    for (let i = 1; i <= 5; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i;
+      btn.className = "betNumberBtn";
+      btn.onclick = () => {
+        const correct = Math.floor(Math.random() * 5) + 1;
+        if (i === correct) {
+          points += 10;
+          updateStatus(`Acertou! Número correto era ${correct}. Você ganhou 10 pontos!`);
+          notify("Parabéns! Ganhou 10 pontos na aposta habilidade.");
+          playSound("notify");
+        } else {
+          points -= 5;
+          updateStatus(`Errou! Número correto era ${correct}. Você perdeu 5 pontos.`);
+          notify("Você perdeu 5 pontos na aposta habilidade.");
+          playSound("error");
+        }
+        saveGame();
+        updateUI();
+        // Remove os botões da aposta após resultado
+        body.querySelectorAll(".betNumberBtn").forEach(b => b.remove());
+        // Atualiza loja caso aberta
+        if (openWindows.store) {
+          updateStoreUI(openWindows.store.querySelector(".window-body"));
+        }
+      };
+      body.appendChild(btn);
+    }
+  };
+
+  betChanceBtn.onclick = () => {
+    if (!canBet()) {
+      updateStatus("Espere 2 minutos entre apostas.");
+      playSound("error");
+      return;
+    }
+    if (points <= 0) {
+      updateStatus("Você não tem pontos para apostar.");
+      playSound("error");
+      return;
+    }
+    lastBetTime = Date.now();
+
+    const win = Math.random() < 0.5;
+    if (win) {
+      points += 5;
+      updateStatus("Você ganhou 5 pontos na aposta sorte!");
+      notify("Parabéns! Ganhou 5 pontos na aposta sorte.");
+      playSound("notify");
+    } else {
+      points -= 5;
+      updateStatus("Você perdeu 5 pontos na aposta sorte.");
+      notify("Você perdeu 5 pontos na aposta sorte.");
+      playSound("error");
+    }
+    saveGame();
+    updateUI();
+    // Atualiza loja caso aberta
+    if (openWindows.store) {
+      updateStoreUI(openWindows.store.querySelector(".window-body"));
+    }
+  };
 }
