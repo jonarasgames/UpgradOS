@@ -1,4 +1,3 @@
-// Variáveis principais
 let points = parseInt(localStorage.getItem("points")) || 0;
 let upgrades = JSON.parse(localStorage.getItem("upgrades")) || {};
 let firstInteraction = false;
@@ -22,7 +21,6 @@ const musicFiles = [
 ];
 const musicNames = ["Música 1", "Música 2", "Música 3"];
 
-// Inicializa som após interação do usuário
 window.addEventListener("click", () => {
   if (!firstInteraction) {
     firstInteraction = true;
@@ -30,7 +28,6 @@ window.addEventListener("click", () => {
   }
 });
 
-// Esconde tela de boot após carregamento
 window.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
     document.getElementById("bootScreen").style.display = "none";
@@ -40,7 +37,6 @@ window.addEventListener("DOMContentLoaded", () => {
   }, 3100);
 });
 
-// Função para tocar sons
 function playSound(type) {
   try {
     if (type === "click") clickSound.play();
@@ -50,13 +46,11 @@ function playSound(type) {
   } catch (e) {}
 }
 
-// Salva progresso no localStorage
 function saveGame() {
   localStorage.setItem("points", points);
   localStorage.setItem("upgrades", JSON.stringify(upgrades));
 }
 
-// Atualiza relógio digital
 function updateClock() {
   const clock = document.getElementById("clock");
   setInterval(() => {
@@ -65,22 +59,14 @@ function updateClock() {
   }, 1000);
 }
 
-// Atualiza cursor conforme contexto e upgrade
 function updateCursorContext(context) {
   document.body.classList.remove("custom-cursor-default", "custom-cursor-grab", "custom-cursor-pointer");
-
   if (getUpgradeLevel("cursor") === 0) return;
-
-  if (context === "grab") {
-    document.body.classList.add("custom-cursor-grab");
-  } else if (context === "pointer") {
-    document.body.classList.add("custom-cursor-pointer");
-  } else {
-    document.body.classList.add("custom-cursor-default");
-  }
+  if (context === "grab") document.body.classList.add("custom-cursor-grab");
+  else if (context === "pointer") document.body.classList.add("custom-cursor-pointer");
+  else document.body.classList.add("custom-cursor-default");
 }
 
-// Torna janela arrastável com cursor dinâmico
 function makeDraggable(win, header) {
   let dragging = false, offsetX, offsetY;
 
@@ -106,51 +92,43 @@ function makeDraggable(win, header) {
     win.style.top = `${e.clientY - offsetY}px`;
   });
 
-  // Cursor dedinho para os botões dentro da janela
   win.querySelectorAll("button").forEach(btn => {
     btn.addEventListener("mouseenter", () => updateCursorContext("pointer"));
     btn.addEventListener("mouseleave", () => updateCursorContext("default"));
   });
 }
 
-// Atualiza o UI geral (pontos, upgrades visuais, barra)
-function updateUI() {
-  pointsDisplay.textContent = points;
-  updateVisualUpgrades();
-  updateTaskbarIcons();
-  updateUpgradesButtons();
-}
-
-// Aplica upgrades visuais em tempo real
-function updateVisualUpgrades() {
-  const wallLevel = getUpgradeLevel("wallpaper");
-  if (wallLevel >= 1) {
-    wallpaper.style.backgroundImage = `url('https://wallpapercave.com/wp/wp2708044.jpg')`;
-  } else {
-    wallpaper.style.backgroundImage = "";
-  }
-
-  const blurLevel = getUpgradeLevel("blur");
-  const windows = document.querySelectorAll(".window");
-  windows.forEach(w => {
-    if (blurLevel >= 1) w.classList.add("blur");
-    else w.classList.remove("blur");
-  });
-
-  const cursorLevel = getUpgradeLevel("cursor");
-  if (cursorLevel >= 1) {
-    updateCursorContext("default");
-  } else {
-    document.body.classList.remove("custom-cursor-default", "custom-cursor-grab", "custom-cursor-pointer");
-  }
-}
-
-// Obter nível do upgrade
 function getUpgradeLevel(key) {
   return upgrades[key] || 0;
 }
 
-// Dados dos apps
+function updateUI() {
+  pointsDisplay.textContent = points;
+  updateVisualUpgrades();
+  updateTaskbarIcons();
+  document.querySelectorAll(".window").forEach(win => {
+    if (win.dataset.app === "store") updateStoreUI(win.querySelector(".window-body"));
+  });
+}
+
+function updateVisualUpgrades() {
+  wallpaper.classList.toggle("aero-wallpaper", getUpgradeLevel("wallpaper") >= 1);
+
+  document.querySelectorAll(".window").forEach(w => {
+    const body = w.querySelector(".window-body");
+    const blur = getUpgradeLevel("blur");
+    const aero = blur >= 1;
+    w.classList.toggle("aero-window", aero);
+    body.classList.toggle("blur", aero);
+  });
+
+  if (getUpgradeLevel("cursor") >= 1) updateCursorContext("default");
+  else document.body.classList.remove("custom-cursor-default", "custom-cursor-grab", "custom-cursor-pointer");
+
+  const taskbar = document.getElementById("taskbar");
+  taskbar.classList.toggle("aero-taskbar", getUpgradeLevel("wallpaper") >= 1);
+}
+
 const appsData = {
   earn: {
     title: "Ganhar Pontos",
@@ -183,19 +161,15 @@ const appsData = {
   bet: {
     title: "Bahze",
     icon: "🎲",
-    content: `<div id="betGameArea">
-      <p>Aposte seus pontos e tente ganhar mais! (Máximo 1 aposta a cada 2 minutos)</p>
-      <p>Escolha o modo:</p>
-      <div id="betButtons">
-        <button id="betSkill">Modo Habilidade (difícil)</button>
-        <button id="betChance">Modo Sorte (50%)</button>
-      </div>
-      <p id="betStatus"></p>
+    content: `<div id="betArea">
+      <p>Quantos pontos deseja apostar?</p>
+      <input type="number" id="betInput" min="1" style="width:100%;" />
+      <button id="betButton">Apostar</button>
+      <div id="betResult"></div>
     </div>`
   }
 };
 
-// Upgrades disponíveis com máximo de 5 níveis
 const allUpgrades = {
   wallpaper: { max: 5, label: "🖼 Papel de Parede" },
   blur: { max: 5, label: "🌫 Blur nas Janelas" },
@@ -203,7 +177,9 @@ const allUpgrades = {
   player: { max: 5, label: "🎧 Upgrade do Player" }
 };
 
-// Abrir apps fixos ao clicar na barra de tarefas
+let openWindows = {};
+let zIndexCounter = 100;
+
 taskbarApps.querySelectorAll(".appIcon").forEach(btn => {
   btn.onclick = () => {
     openApp(btn.dataset.app);
@@ -211,15 +187,8 @@ taskbarApps.querySelectorAll(".appIcon").forEach(btn => {
   };
 });
 
-// Abre app e cria janela, com todos handlers
-const openWindows = {};
-let zIndexCounter = 100;
-
 function openApp(key) {
-  if (openWindows[key]) {
-    focusWindow(openWindows[key]);
-    return;
-  }
+  if (openWindows[key]) return focusWindow(openWindows[key]);
 
   const app = appsData[key];
   const win = document.createElement("div");
@@ -229,7 +198,6 @@ function openApp(key) {
   win.style.left = "100px";
   win.style.zIndex = ++zIndexCounter;
 
-  // Cabeçalho com botões
   const header = document.createElement("div");
   header.className = "window-header";
   header.innerHTML = `
@@ -241,7 +209,6 @@ function openApp(key) {
     </div>`;
   win.appendChild(header);
 
-  // Corpo
   const body = document.createElement("div");
   body.className = "window-body";
   body.innerHTML = app.content;
@@ -250,136 +217,41 @@ function openApp(key) {
   openWindows[key] = win;
   updateUI();
 
-  // Fechar janela
   header.querySelector(".closeBtn").onclick = () => {
     win.remove();
     delete openWindows[key];
     updateTaskbarIcons();
   };
+  header.querySelector(".minimizeBtn").onclick = () => win.style.display = "none";
+  header.querySelector(".maximizeBtn").onclick = () => win.classList.toggle("maximized");
 
-  // Minimizar janela
-  header.querySelector(".minimizeBtn").onclick = () => {
-    win.style.display = "none";
-  };
-
-  // Maximizar/restaurar
-  header.querySelector(".maximizeBtn").onclick = () => {
-    win.classList.toggle("maximized");
-  };
-
-  // Tornar arrastável com cursor dinâmico
   makeDraggable(win, header);
   focusWindow(win);
 
-  // Apps específicos
   if (key === "earn") {
     body.querySelector("#earnPointsBtn").onclick = () => {
       points++;
       saveGame();
       updateUI();
-      playSound("click");
       notify("Ganhou 1 ponto!");
-      // Atualiza botões da loja em tempo real se aberta
-      if (openWindows.store) {
-        updateStoreUI(openWindows.store.querySelector(".window-body"));
-      }
     };
   }
 
-  if (key === "store") {
-    updateStoreUI(body);
-  }
-
-  if (key === "winamp") {
-    setupMusicPlayer(body);
-  }
-
-  if (key === "bet") {
-    setupBetGame(body);
-  }
+  if (key === "store") updateStoreUI(body);
+  if (key === "winamp") setupMusicPlayer(body);
+  if (key === "bet") setupBetApp(body);
 }
 
-// Dar foco na janela
 function focusWindow(win) {
-  zIndexCounter++;
-  win.style.zIndex = zIndexCounter;
+  win.style.zIndex = ++zIndexCounter;
 }
 
-// Atualizar ícones ativos na barra de tarefas
 function updateTaskbarIcons() {
   taskbarApps.querySelectorAll(".appIcon").forEach(icon => {
-    if (openWindows[icon.dataset.app]) {
-      icon.classList.add("active");
-    } else {
-      icon.classList.remove("active");
-    }
+    icon.classList.toggle("active", openWindows[icon.dataset.app]);
   });
 }
 
-// Atualiza botões de upgrade (desabilita/abilita) - atualiza em tempo real
-function updateUpgradesButtons() {
-  document.querySelectorAll(".upgrade").forEach(btn => {
-    const text = btn.textContent;
-    const match = text.match(/- (\d+) pts$/);
-    const cost = match ? parseInt(match[1]) : 0;
-
-    const level = parseInt(btn.dataset.level);
-    const max = parseInt(btn.dataset.max);
-
-    if (level >= max) {
-      btn.disabled = true;
-    } else if (points >= cost) {
-      btn.disabled = false;
-    } else {
-      btn.disabled = true;
-    }
-
-    if (btn.disabled) btn.classList.add("disabled");
-    else btn.classList.remove("disabled");
-  });
-}
-
-// Atualiza a UI da loja em tempo real sem fechar
-function updateStoreUI(body) {
-  const storeList = body.querySelector(".store-list");
-  if (!storeList) return;
-
-  storeList.innerHTML = "";
-  Object.keys(allUpgrades).forEach(k => {
-    const level = getUpgradeLevel(k);
-    const max = allUpgrades[k].max;
-    const nextLevel = level + 1;
-    const cost = Math.floor(nextLevel * 10 * 1.5 ** level); // custo cresce 50% a cada nível
-
-    const btn = document.createElement("button");
-    btn.className = "upgrade";
-    btn.textContent = `${allUpgrades[k].label} (Nível ${level}/${max}) - ${cost} pts`;
-    btn.dataset.level = level;
-    btn.dataset.max = max;
-    btn.disabled = level >= max || points < cost;
-
-    btn.onclick = () => {
-      if (points >= cost && level < max) {
-        upgrades[k] = nextLevel;
-        points -= cost;
-        saveGame();
-        updateUI();
-        playSound("notify");
-        notify(`${allUpgrades[k].label} melhorado para nível ${nextLevel}!`);
-        updateStoreUI(body);
-        updateUpgradesButtons();
-      } else {
-        playSound("error");
-      }
-    };
-
-    storeList.appendChild(btn);
-  });
-
-  updateUpgradesButtons();
-}
-
-// Notificações simples
 function notify(msg) {
   const box = document.createElement("div");
   box.className = "notification";
@@ -388,7 +260,39 @@ function notify(msg) {
   setTimeout(() => box.remove(), 4000);
 }
 
-// Player música
+function updateStoreUI(body) {
+  const storeList = body.querySelector(".store-list");
+  if (!storeList) return;
+  storeList.innerHTML = "";
+
+  Object.keys(allUpgrades).forEach(k => {
+    const level = getUpgradeLevel(k);
+    const max = allUpgrades[k].max;
+    const nextLevel = level + 1;
+    const base = 10;
+    const cost = Math.round(base * Math.pow(1.5, level));
+
+    const btn = document.createElement("button");
+    btn.className = "upgrade";
+    btn.textContent = `${allUpgrades[k].label} (Nível ${level}/${max}) - ${cost} pts`;
+    btn.disabled = level >= max || points < cost;
+
+    btn.onclick = () => {
+      if (points >= cost && level < max) {
+        upgrades[k] = nextLevel;
+        points -= cost;
+        saveGame();
+        updateUI();
+        notify(`${allUpgrades[k].label} melhorado para nível ${nextLevel}!`);
+      } else {
+        playSound("error");
+      }
+    };
+
+    storeList.appendChild(btn);
+  });
+}
+
 let audio = new Audio();
 let currentTrackIndex = 0;
 let isPlaying = false;
@@ -433,101 +337,29 @@ function setupMusicPlayer(body) {
   });
 }
 
-// Setup do jogo de apostas "bet"
-let lastBetTime = 0;
-function setupBetGame(body) {
-  const betSkillBtn = body.querySelector("#betSkill");
-  const betChanceBtn = body.querySelector("#betChance");
-  const betStatus = body.querySelector("#betStatus");
+let betCooldown = false;
 
-  function canBet() {
-    return Date.now() - lastBetTime > 120000; // 2 minutos
-  }
+function setupBetApp(body) {
+  const input = body.querySelector("#betInput");
+  const button = body.querySelector("#betButton");
+  const result = body.querySelector("#betResult");
 
-  function updateStatus(msg) {
-    betStatus.textContent = msg;
-  }
-
-  betSkillBtn.onclick = () => {
-    if (!canBet()) {
-      updateStatus("Espere 2 minutos entre apostas.");
-      playSound("error");
-      return;
-    }
-    if (points <= 0) {
-      updateStatus("Você não tem pontos para apostar.");
-      playSound("error");
-      return;
-    }
-    lastBetTime = Date.now();
-
-    // Desafio habilidade simples: acertar número entre 1 e 5 (o usuário clica no botão 1-5)
-    updateStatus("Clique em um número de 1 a 5:");
-
-    // Remove botões anteriores se existirem
-    const existingBtns = body.querySelectorAll(".betNumberBtn");
-    existingBtns.forEach(b => b.remove());
-
-    for (let i = 1; i <= 5; i++) {
-      const btn = document.createElement("button");
-      btn.textContent = i;
-      btn.className = "betNumberBtn";
-      btn.onclick = () => {
-        const correct = Math.floor(Math.random() * 5) + 1;
-        if (i === correct) {
-          points += 10;
-          updateStatus(`Acertou! Número correto era ${correct}. Você ganhou 10 pontos!`);
-          notify("Parabéns! Ganhou 10 pontos na aposta habilidade.");
-          playSound("notify");
-        } else {
-          points -= 5;
-          updateStatus(`Errou! Número correto era ${correct}. Você perdeu 5 pontos.`);
-          notify("Você perdeu 5 pontos na aposta habilidade.");
-          playSound("error");
-        }
-        saveGame();
-        updateUI();
-        // Remove os botões da aposta após resultado
-        body.querySelectorAll(".betNumberBtn").forEach(b => b.remove());
-        // Atualiza loja caso aberta
-        if (openWindows.store) {
-          updateStoreUI(openWindows.store.querySelector(".window-body"));
-        }
-      };
-      body.appendChild(btn);
-    }
-  };
-
-  betChanceBtn.onclick = () => {
-    if (!canBet()) {
-      updateStatus("Espere 2 minutos entre apostas.");
-      playSound("error");
-      return;
-    }
-    if (points <= 0) {
-      updateStatus("Você não tem pontos para apostar.");
-      playSound("error");
-      return;
-    }
-    lastBetTime = Date.now();
+  button.onclick = () => {
+    const value = parseInt(input.value);
+    if (betCooldown) return notify("Espere antes de apostar de novo!");
+    if (isNaN(value) || value <= 0) return notify("Valor inválido!");
+    if (value > points) return notify("Você não tem pontos suficientes!");
 
     const win = Math.random() < 0.5;
-    if (win) {
-      points += 5;
-      updateStatus("Você ganhou 5 pontos na aposta sorte!");
-      notify("Parabéns! Ganhou 5 pontos na aposta sorte.");
-      playSound("notify");
-    } else {
-      points -= 5;
-      updateStatus("Você perdeu 5 pontos na aposta sorte.");
-      notify("Você perdeu 5 pontos na aposta sorte.");
-      playSound("error");
-    }
+    points += win ? value : -value;
+    result.textContent = win ? `Você ganhou +${value} pontos!` : `Você perdeu ${value} pontos!`;
     saveGame();
     updateUI();
-    // Atualiza loja caso aberta
-    if (openWindows.store) {
-      updateStoreUI(openWindows.store.querySelector(".window-body"));
-    }
+
+    betCooldown = true;
+    setTimeout(() => {
+      betCooldown = false;
+      result.textContent = "";
+    }, Math.random() * 5000 + 2000); // Cooldown aleatório entre 2s e 7s
   };
 }
