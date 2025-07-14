@@ -1,326 +1,330 @@
-/* Reset básico e normalize-like */
-*,
-*::before,
-*::after {
+/* Reset básico */
+* {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
   user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-html, body {
-  height: 100%;
+body {
+  margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #1e1e1e;
+  background-color: #1e1e1e;
   color: #ddd;
   overflow: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  scroll-behavior: smooth;
+  cursor: url('icons/cursor_default.cur'), auto; /* fallback cursor */
 }
 
-/* Wallpaper / Fundo do desktop */
-#wallpaper {
+/* Tela de boot */
+#bootScreen {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 40px;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #000;
+  color: #0ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
+  font-weight: bold;
+  z-index: 9999;
+}
+
+/* Desktop */
+#desktop.hidden {
+  display: none;
+}
+
+#desktop {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Wallpaper */
+#wallpaper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
   background-size: cover;
   background-position: center;
-  transition: background-image 0.6s ease-in-out;
+  transition: background-image 0.5s ease;
   z-index: 0;
 }
 
-/* Desktop container */
-#desktop {
-  position: relative;
-  height: 100%;
-  width: 100%;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  padding-bottom: 40px;
-  user-select: none;
+/* Blur nas janelas */
+.blur {
+  backdrop-filter: blur(5px);
+  transition: backdrop-filter 0.3s ease;
 }
 
-/* Taskbar */
+/* Barra de tarefas estilo Windows 10 */
 #taskbar {
-  position: fixed;
+  position: absolute;
   bottom: 0; left: 0; right: 0;
   height: 40px;
-  background: linear-gradient(180deg, #0078d7, #005a9e);
+  background: linear-gradient(90deg, #0078d7, #005a9e);
   border-top: 1px solid #004080;
   display: flex;
   align-items: center;
-  padding: 0 12px;
-  z-index: 10000;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.6);
+  padding: 0 10px;
+  z-index: 1000;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
   user-select: none;
 }
 
-/* Taskbar Icons */
+/* Botão iniciar */
+#startButton {
+  background: linear-gradient(180deg, #0a74da, #004a9e);
+  border: none;
+  color: white;
+  font-weight: bold;
+  padding: 5px 12px;
+  margin-right: 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+#startButton:hover {
+  background: linear-gradient(180deg, #004a9e, #002f5b);
+}
+
+/* Pontos na barra */
+#points {
+  margin-right: 20px;
+  font-weight: bold;
+  min-width: 60px;
+  text-align: right;
+  user-select: none;
+  color: #e1e1e1;
+  text-shadow: 0 0 3px #0008;
+}
+
+/* Ícones dos apps na barra */
 #taskbarApps {
   display: flex;
   gap: 8px;
+  flex: 1;
 }
 
 .appIcon {
-  font-size: 24px;
+  font-size: 20px;
   cursor: pointer;
-  color: #cfcfcf;
-  background: transparent;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition: background 0.25s ease, color 0.25s ease;
+  padding: 5px;
+  border-radius: 5px;
   user-select: none;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #cfd9e8;
+  text-shadow: 0 0 3px #0005;
+}
+.appIcon.active, .appIcon:hover {
+  background-color: rgba(0, 120, 215, 0.6);
+  box-shadow: 0 0 10px #00a2ffaa;
+  color: white;
 }
 
-.appIcon:hover {
-  background: rgba(255 255 255 / 0.18);
-  color: #ffffff;
-  box-shadow: 0 0 8px #00a0ff;
-}
-
-.appIcon.active {
-  background: #005a9e;
-  color: #e1f0ff;
-  box-shadow: 0 0 12px #0078d7;
-}
-
-/* Windows */
+/* Janelas estilo Fruitger Aero */
 .window {
   position: absolute;
-  width: 420px;
-  height: 320px;
-  background: linear-gradient(145deg, #2a2a2a, #212121);
-  border-radius: 12px;
+  width: 350px;
+  height: 250px;
+  background: rgba(37, 37, 38, 0.9);
+  border: 1px solid rgba(60, 60, 60, 0.8);
+  border-radius: 8px;
   box-shadow:
-    0 4px 8px rgba(0,0,0,0.4),
-    inset 0 0 15px rgba(255,255,255,0.05);
-  overflow: hidden;
+    0 0 10px rgba(0, 120, 215, 0.7),
+    inset 0 0 15px rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
   user-select: none;
-  transition: box-shadow 0.4s ease, transform 0.3s ease;
+  overflow: hidden;
+  z-index: 100;
+  transition: box-shadow 0.2s ease;
+  backdrop-filter: saturate(180%) blur(12px);
+  color: #e1e1e1;
 }
 
 .window.maximized {
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: calc(100% - 40px) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  transform: none !important;
+  width: 90vw !important;
+  height: 80vh !important;
+  top: 5vh !important;
+  left: 5vw !important;
 }
 
-/* Window header */
+/* Cabeçalho com degradê e sombra */
 .window-header {
-  background: linear-gradient(180deg, #0078d7, #005a9e);
+  height: 30px;
+  background: linear-gradient(90deg, #0078d7, #005a9e);
   color: white;
-  padding: 8px 14px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
   cursor: grab;
   user-select: none;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  border-bottom: 1px solid #004080;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
 .window-header span {
+  font-weight: bold;
+  font-size: 14px;
   user-select: none;
-  font-size: 1rem;
 }
 
 .window-header button {
   background: transparent;
   border: none;
   color: white;
-  font-weight: bold;
   font-size: 16px;
   cursor: pointer;
-  padding: 0 8px;
   user-select: none;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-  line-height: 1;
+  padding: 0 5px;
+  transition: background 0.2s ease;
+  border-radius: 3px;
 }
-
 .window-header button:hover {
-  background: rgba(255 255 255 / 0.3);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.25);
 }
 
-/* Window body */
+/* Corpo das janelas */
 .window-body {
-  background: #1e1e1e;
+  flex: 1;
+  background: rgba(30, 30, 30, 0.85);
+  padding: 10px;
   color: #ddd;
-  padding: 14px 16px;
-  flex-grow: 1;
-  overflow-y: auto;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  border-radius: 0 0 12px 12px;
-  scrollbar-width: thin;
-  scrollbar-color: #0078d7 #333;
+  overflow: auto;
+  font-size: 14px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 
-/* Scrollbar para Firefox */
-.window-body {
-  scrollbar-width: thin;
-  scrollbar-color: #0078d7 #333;
-}
-
-/* Scrollbar para Webkit */
-.window-body::-webkit-scrollbar {
-  width: 10px;
-}
-
-.window-body::-webkit-scrollbar-track {
-  background: #222;
-  border-radius: 10px;
-}
-
-.window-body::-webkit-scrollbar-thumb {
-  background: #0078d7;
-  border-radius: 10px;
-  transition: background-color 0.3s ease;
-}
-
-.window-body::-webkit-scrollbar-thumb:hover {
-  background: #005a9e;
-}
-
-/* Blur upgrade */
-.blur .window-body {
-  backdrop-filter: blur(6px);
-  background-color: rgba(30,30,30,0.8);
-  transition: backdrop-filter 0.4s ease, background-color 0.4s ease;
-}
-
-/* Botões upgrade */
+/* Botões de upgrade */
 button.upgrade {
   width: 100%;
-  background: linear-gradient(145deg, #0a64c8, #004a86);
+  background: linear-gradient(180deg, #0a64c8, #004a86);
   border: none;
   color: white;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 8px;
+  padding: 8px;
+  margin: 4px 0;
+  border-radius: 6px;
   cursor: pointer;
-  font-weight: 700;
-  box-shadow:
-    0 3px 6px rgba(0,100,200,0.7),
-    inset 0 1px 1px rgba(255,255,255,0.15);
-  transition:
-    background 0.4s ease,
-    box-shadow 0.4s ease,
-    transform 0.1s ease;
-  user-select: none;
+  font-weight: 600;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 0 5px #0a64c8;
 }
-
 button.upgrade:hover:not(:disabled) {
-  background: linear-gradient(145deg, #0078f5, #0051b8);
-  box-shadow:
-    0 6px 10px rgba(0,120,245,0.85),
-    inset 0 1px 1px rgba(255,255,255,0.3);
-  transform: scale(1.03);
+  background: linear-gradient(180deg, #004a86, #002f5b);
+  box-shadow: 0 0 15px #00a2ff;
 }
-
 button.upgrade:disabled {
   background: #444;
   cursor: not-allowed;
   opacity: 0.6;
   box-shadow: none;
-  transform: none;
-}
-
-/* Canvas do jogo de aposta */
-#betGameCanvas {
-  border-radius: 8px;
-  background: #111;
-  margin-top: 14px;
-  display: none;
-  border: 2px solid #0078d7;
-  box-shadow: 0 0 15px #0078d7;
 }
 
 /* Notificações */
 #notifications {
   position: fixed;
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
   width: 280px;
-  z-index: 11000;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  user-select: none;
+  z-index: 20000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .notification {
   background: #0078d7;
   color: white;
-  padding: 14px 18px;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgb(0 120 215 / 0.85);
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  box-shadow: 0 0 15px #0078d7cc;
+  animation: slideUp 0.3s ease forwards;
   user-select: none;
-  animation: fadeinout 4.2s forwards;
 }
 
-@keyframes fadeinout {
-  0% { opacity: 0; transform: translateX(50px);}
-  10% { opacity: 1; transform: translateX(0);}
-  90% { opacity: 1; transform: translateX(0);}
-  100% { opacity: 0; transform: translateX(50px);}
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
-/* Cursores personalizados */
+/* Player música */
+.music-player {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #ddd;
+}
+
+.music-list {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.music-list button {
+  background: linear-gradient(180deg, #0a64c8, #004a86);
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 0 6px #0a64c8;
+}
+
+.music-list button:hover {
+  background: linear-gradient(180deg, #004a86, #002f5b);
+  box-shadow: 0 0 12px #00a2ff;
+}
+
+.music-controls {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.music-controls button {
+  font-size: 18px;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(180deg, #0078d7, #005a9e);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 0 10px #0078d7;
+}
+
+.music-controls button:hover {
+  background: linear-gradient(180deg, #005a9e, #003a63);
+  box-shadow: 0 0 15px #00a2ff;
+}
+
+#currentTrack {
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+  user-select: none;
+}
+
+/* Cursores customizados */
 .custom-cursor-default {
-  cursor: url('icons/cursor_aero.cur'), auto;
+  cursor: url('icons/cursor_default.cur'), auto;
 }
 
 .custom-cursor-grab {
-  cursor: url('icons/grab.cur'), grab;
+  cursor: url('icons/cursor_grab.cur'), grab;
 }
 
 .custom-cursor-pointer {
-  cursor: url('icons/pointer.cur'), pointer;
-}
-
-/* Animação suave de janelas ao abrir */
-.window {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: windowFadeIn 0.4s forwards ease-out;
-}
-
-@keyframes windowFadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Botões e inputs foco */
-button:focus, input:focus, textarea:focus {
-  outline: 2px solid #0078d7;
-  outline-offset: 2px;
-  box-shadow: 0 0 8px #0078d7aa;
-  transition: box-shadow 0.3s ease;
-}
-
-/* Responsividade leve para janelas (exemplo) */
-@media (max-width: 480px) {
-  .window {
-    width: 90vw !important;
-    height: 70vh !important;
-  }
+  cursor: url('icons/cursor_pointer.cur'), pointer;
 }
