@@ -1,332 +1,334 @@
-/* Reset básico */
+/* Reset */
 * {
   box-sizing: border-box;
   user-select: none;
-}
-
-body {
-  margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #1e1e1e;
-  color: #ddd;
-  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
-#bootScreen {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #000;
-  color: #0ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2em;
-  font-weight: bold;
-  z-index: 9999;
-}
-
-#desktop.hidden {
-  display: none;
-}
-
-#desktop {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-}
-
-/* Wallpapers animados níveis 0 a 5 */
+/* Wallpaper levels */
 .wallpaper-level-0 {
-  background: #111;
-  animation: none;
+  background: #111111;
 }
-
 .wallpaper-level-1 {
   background: linear-gradient(135deg, #85d8ce, #2b87a3);
-  animation: none;
 }
-
 .wallpaper-level-2 {
-  background: linear-gradient(45deg, #008080, #20b2aa, #5f9ea0);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  background: url('images/wallpaper2.jpg') no-repeat center/cover;
+  filter: brightness(0.9);
 }
-
 .wallpaper-level-3 {
-  background: linear-gradient(270deg, #007BFF, #00FFFF, #00BFFF, #1E90FF);
-  background-size: 400% 400%;
-  animation: gradientShift 20s ease infinite;
+  background: url('images/wallpaper3.png') no-repeat center/cover;
+  filter: brightness(0.8) saturate(1.2);
 }
-
 .wallpaper-level-4 {
-  background: linear-gradient(45deg, #007BFF, #00FFFF, #1E90FF, #00BFFF);
-  background-size: 400% 400%;
-  animation: gradientShift 12s ease infinite;
-  box-shadow: 0 0 40px 6px #00e5ff inset;
+  background: url('images/wallpaper4.png') no-repeat center/cover;
+  filter: brightness(1) saturate(1.5) drop-shadow(0 0 5px rgba(255,255,255,0.3));
 }
-
 .wallpaper-level-5 {
-  background: linear-gradient(45deg, #00e5ff, #0088cc, #33ccff, #66d9ff);
-  background-size: 400% 400%;
-  animation: gradientShift 10s ease infinite;
-  box-shadow:
-    0 0 60px 10px #00e5ff,
-    inset 0 0 25px #33ccff;
-  filter: drop-shadow(0 0 10px #00e5ff);
+  background: url('images/wallpaper5.png') no-repeat center/cover;
+  filter: brightness(1.2) saturate(1.7) drop-shadow(0 0 10px rgba(0,255,255,0.6));
+  animation: subtleGlow 8s infinite alternate;
 }
 
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* Glow animation */
+@keyframes subtleGlow {
+  from {
+    filter: brightness(1.2) saturate(1.7) drop-shadow(0 0 10px rgba(0,255,255,0.6));
+  }
+  to {
+    filter: brightness(1.4) saturate(2) drop-shadow(0 0 15px rgba(0,255,255,0.8));
+  }
 }
 
-/* Efeitos blur vidrados janelas */
-
+/* Janela (sem blur no conteúdo, só no fundo) */
 .window {
   position: absolute;
-  width: 350px;
-  height: 250px;
-  background: rgba(37, 37, 38, 0.9);
-  border-radius: 5px;
-  box-shadow: 0 0 10px #0008 inset;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  color: #222;
+  min-width: 280px;
+  min-height: 180px;
   display: flex;
   flex-direction: column;
-  user-select: none;
   overflow: hidden;
-  z-index: 100;
-  transition: box-shadow 0.2s ease, background 0.3s ease;
-  border: 1px solid #3c3c3c;
-  resize: both;
-  overflow: auto;
+  /* Aqui não colocamos backdrop-filter, vamos aplicar blur no fundo com um pseudo-elemento */
+  transition: box-shadow 0.3s ease;
 }
 
-.window.maximized {
-  width: 90vw !important;
-  height: 80vh !important;
-  top: 5vh !important;
-  left: 5vw !important;
+/* Blur aplicado só no fundo da janela usando pseudo-elemento */
+.window::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  z-index: 0;
+  filter: none;
+  background: rgba(255, 255, 255, 0.25);
+  transition: filter 0.3s ease;
+  pointer-events: none;
 }
 
-/* Blur níveis para janela */
-.blur-level-0 {
-  backdrop-filter: none;
-  background: rgba(37, 37, 38, 0.9);
-  border-color: #3c3c3c;
-  box-shadow: 0 0 10px #0008 inset;
-}
-
-.blur-level-1 {
-  backdrop-filter: blur(6px);
-  background: rgba(255,255,255,0.35);
-  border: 1px solid rgba(255,255,255,0.2);
-  box-shadow: 0 4px 8px rgba(255,255,255,0.15);
-}
-
-.blur-level-2 {
-  backdrop-filter: blur(12px);
-  background: rgba(255,255,255,0.3);
-  border: 1px solid rgba(255,255,255,0.3);
-  box-shadow: 0 6px 14px rgba(0, 123, 255, 0.25);
-}
-
-.blur-level-3 {
-  backdrop-filter: blur(18px);
+/* Blur levels (só no fundo) */
+.blur-level-0::before {
+  filter: none;
   background: rgba(255,255,255,0.25);
-  border: 1px solid rgba(255,255,255,0.35);
-  box-shadow: 0 8px 18px rgba(0, 123, 255, 0.35);
 }
-
-.blur-level-4 {
-  backdrop-filter: blur(22px);
+.blur-level-1::before {
+  filter: blur(5px);
   background: rgba(255,255,255,0.2);
-  border: 1px solid rgba(0, 170, 255, 0.4);
-  box-shadow:
-    0 8px 18px rgba(0, 170, 255, 0.4),
-    inset 0 0 10px rgba(255,255,255,0.2);
-  animation: windowGlow 6s ease-in-out infinite alternate;
 }
-
-.blur-level-5 {
-  backdrop-filter: blur(28px);
+.blur-level-2::before {
+  filter: blur(10px);
   background: rgba(255,255,255,0.15);
-  border: 1px solid #00e5ff;
+}
+.blur-level-3::before {
+  filter: blur(15px);
+  background: rgba(255,255,255,0.12);
+}
+.blur-level-4::before {
+  filter: blur(20px);
+  background: rgba(255,255,255,0.1);
+}
+.blur-level-5::before {
+  filter: blur(25px);
+  background: rgba(255,255,255,0.08);
   box-shadow:
-    0 0 40px 8px #00e5ff,
-    inset 0 0 15px #33ccff;
-  animation: windowGlow 4s ease-in-out infinite alternate;
+    0 8px 24px rgba(0, 170, 255, 0.35),
+    inset 0 0 15px rgba(0, 170, 255, 0.4);
 }
 
-@keyframes windowGlow {
-  0% {
-    box-shadow:
-      0 0 30px 6px #00bfff,
-      inset 0 0 10px #33ccff;
-  }
-  100% {
-    box-shadow:
-      0 0 40px 10px #00e5ff,
-      inset 0 0 18px #66d9ff;
-  }
+/* Para conteúdo da janela ficar acima do blur */
+.window > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Janela maximizada */
+.window.maximized {
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+}
+
+/* Header da janela */
+.window-header {
+  background: rgba(0, 123, 255, 0.8);
+  color: white;
+  font-weight: 600;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  cursor: grab;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,0.3);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  z-index: 2;
+}
+
+/* Botões da janela */
+.window-header button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.window-header button:hover {
+  color: #ffd700;
+}
+
+/* Corpo da janela */
+.window-body {
+  padding: 15px;
+  flex-grow: 1;
+  overflow-y: auto;
+  color: #111;
+  position: relative;
+  z-index: 1;
+}
+
+/* Resizer (canto inferior direito) */
+.resizer {
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  cursor: se-resize;
+  background: transparent;
+  z-index: 3;
 }
 
 /* Barra de tarefas */
 #taskbar {
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
-  height: 48px;
-  background-color: #005fbb;
+  width: 100%;
+  height: 44px;
+  background: linear-gradient(90deg, #007bff, #004a99);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+  padding: 0 12px;
+  color: white;
   user-select: none;
-  z-index: 999;
+  z-index: 1000;
+  box-shadow: 0 -3px 6px rgba(0,0,0,0.4);
 }
 
+/* Botão iniciar */
 #startButton {
   background: transparent;
   border: none;
+  margin-right: 12px;
   cursor: pointer;
-  padding: 4px 6px;
-  border-radius: 4px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-#startButton:hover {
-  background-color: #004a99;
+/* Ícones dos apps na barra */
+#taskbarApps {
+  display: flex;
+  gap: 10px;
+  flex-grow: 1;
 }
 
-#taskbarApps button.appIcon {
-  font-size: 20px;
-  background: transparent;
-  border: none;
-  margin: 0 4px;
-  cursor: pointer;
-  padding: 6px;
+/* Ícones */
+.appIcon {
+  background: rgba(255,255,255,0.15);
   border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.3);
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  line-height: 32px;
+  text-align: center;
   color: white;
+  cursor: pointer;
+  user-select: none;
   transition: background-color 0.2s ease;
 }
-
-#taskbarApps button.appIcon:hover {
-  background-color: #003f7f;
+.appIcon:hover, .appIcon:focus {
+  background: rgba(255,255,255,0.3);
+  outline: none;
 }
 
+/* Lado direito da barra */
 #taskbarRight {
-  color: white;
+  display: flex;
+  gap: 15px;
+  align-items: center;
   font-weight: 600;
   font-size: 14px;
+}
+
+/* Relógio */
+#clock {
+  min-width: 65px;
+  text-align: right;
+}
+
+/* Papel de parede */
+#wallpaper {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 44px; /* barra no fim */
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+  transition: background 1s ease, filter 0.5s ease;
+}
+
+/* Boot screen */
+#bootScreen {
+  position: fixed;
+  inset: 0;
+  background: #111;
+  color: white;
   display: flex;
-  gap: 12px;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  z-index: 2000;
+  user-select: none;
+}
+#bootBar {
+  margin-top: 20px;
+  width: 300px;
+  height: 20px;
+  border: 2px solid #444;
+  border-radius: 10px;
+  overflow: hidden;
+}
+#bootBar .progress {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00aaff, #004466);
+  transition: width 0.3s ease;
+}
+
+/* Oculto */
+.hidden {
+  display: none !important;
 }
 
 /* Notificações */
 #notifications {
   position: fixed;
-  top: 10px;
-  right: 10px;
-  min-width: 240px;
+  bottom: 54px;
+  right: 12px;
   max-width: 320px;
-  background: #0080ffcc;
+  z-index: 3000;
+  font-weight: 600;
   color: white;
-  padding: 12px 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 8px #0070ffcc;
-  opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
-  z-index: 10000;
+  text-shadow: 0 0 4px rgba(0,0,0,0.7);
 }
 
-/* Janela da Calculadora */
-.calculator {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  font-size: 18px;
-  user-select: text;
-  background: rgba(255,255,255,0.85);
-  padding: 20px;
-  border-radius: 20px;
-  box-shadow:
-    8px 8px 16px #b2d9ff,
-    -8px -8px 16px #e3f3ff;
-  color: #003366;
+/* Notificação individual */
+.notification {
+  background: rgba(0,123,255,0.85);
+  padding: 12px 18px;
+  margin-top: 8px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  animation: slideInRight 0.3s ease forwards;
 }
 
-#calcDisplay {
-  font-size: 24px;
-  padding: 12px 20px;
-  border-radius: 14px;
-  border: none;
-  box-shadow:
-    inset 3px 3px 6px rgba(255,255,255,0.9),
-    inset -3px -3px 6px rgba(0,123,255,0.3);
-  text-align: right;
-  user-select: text;
-  min-height: 48px;
-  pointer-events: none;
-  color: #004080;
-  background: white;
+/* Animação notificação */
+@keyframes slideInRight {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
-.calc-buttons {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+/* Cursor personalizado */
+body, button {
+  cursor: url('images/cursor.png'), auto;
 }
 
-.calc-buttons button {
-  padding: 16px 0;
-  border-radius: 16px;
-  border: none;
-  font-weight: 700;
-  font-size: 22px;
-  background: linear-gradient(145deg, #e6f3ff, #9dcfff);
-  box-shadow:
-    6px 6px 10px #a4c5ea,
-    -6px -6px 10px #d3ebff;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  user-select: none;
-  color: #003366;
+/* Scroll barras finas */
+.window-body::-webkit-scrollbar {
+  width: 8px;
 }
-
-.calc-buttons button:hover {
-  background: linear-gradient(145deg, #9dcfff, #4286d1);
-  color: white;
-}
-
-/* Janelas título e controle */
-.window-header {
-  background: rgba(0, 123, 255, 0.8);
-  color: white;
-  padding: 8px 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: grab;
-  user-select: none;
-  font-weight: 700;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.window-header .controls button {
+.window-body::-webkit-scrollbar-track {
   background: transparent;
-  border: none;
-  color: white;
-  font-weight: 700;
-  font-size: 16px;
-  cursor: pointer;
-  margin-left: 12px;
-  user-select: none;
 }
-
-.window-header .controls button:hover {
-  color: #00e5ff;
+.window-body::-webkit-scrollbar-thumb {
+  background: rgba(0,123,255,0.6);
+  border-radius: 10px;
 }
